@@ -53,27 +53,28 @@ Hooks.on(
     if (!tokenControls) return;
 
     tokenControls.tools.createZone = {
-
       name: "createZone",
-
       title: "Create Zone",
-
       icon: "fas fa-draw-polygon",
-
       visible: true,
-
       toggle: true,
-
       active: false,
-
       onClick: (active) => {
-
         game.fateZones.activeTool =
           active ? "createZone" : null;
-
       }
-
     };
+
+    tokenControls.tools.showAspectManager = {
+      name: "showAspectManager",
+      title: "Show Aspect Manager",
+      icon: "fa-solid fa-tags",
+      button: true,
+      visible: true,
+      onClick: (active) => {
+        game.fateTools.ActiveAspects.show()  
+      }
+    }
 
   }
 );
@@ -116,7 +117,6 @@ Hooks.on(
 
       }
     );
-
   }
 );
 
