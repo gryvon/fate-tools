@@ -486,10 +486,16 @@ export class ZonePlaceable extends PIXI.Container {
 
     y += 20 * scale;
 
+    const invokeMap = canvas.scene.getFlag("fate-tools", "invokes") ?? {};
+
     for (const consequence of this.zoneData.consequences) {
 
+      const key = ["zone", this.zoneData.id, "aspect", consequence].join(":");
+
+      const invokes = invokeMap[key] ?? 0;
+
       const text = new PIXI.Text(
-        `• ${consequence}`,
+        `• ${consequence} (${invokes})`,
         {
           fill: "#FFFFFF",
           fontSize: Math.round(12 * this._getUIScale()),
