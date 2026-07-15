@@ -1,0 +1,28 @@
+{
+  "id": "fate-zones",
+  "title": "Fate Zones",
+  "description": "Fate-style Zones with Stress, Aspects, and Consequences",
+  "version": "0.3.0",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
+  "authors": [
+    {
+      "name": "clusterphunk"
+    }
+  ],
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "styles": [
+    "styles/fate-zones.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ]
+}
