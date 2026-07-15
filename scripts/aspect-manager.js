@@ -147,24 +147,22 @@ export class AspectManager {
 
     const aspects = [];
 
-    const actors = new Map();
-
     for (const token of canvas.scene.tokens.contents) {
 
-      if (!token.actor) continue;
+      const actor = token.actor;
 
-      actors.set(
-        token.actor.id,
-        token.actor
-      );
-
-    }
-
-    for (const actor of actors.values()) {
+      if (!actor) continue;
 
       if (!game.user.isGM) {
-        const canObserve = actor.testUserPermission(game.user, CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER);
+
+        const canObserve =
+          actor.testUserPermission(
+            game.user,
+            CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER
+          );
+
         if (!canObserve) continue;
+
       }
 
       const actorAspects =
@@ -186,9 +184,10 @@ export class AspectManager {
 
           sourceType: "actor",
 
-          sourceId: actor.id,
+          // TOKEN identity
+          sourceId: token.id,
 
-          sourceName: actor.name,
+          sourceName: token.actor.name,
 
           category: aspect.name,
 
@@ -217,20 +216,11 @@ export class AspectManager {
 
     const consequences = [];
 
-    const actors = new Map();
-
     for (const token of canvas.scene.tokens.contents) {
 
-      if (!token.actor) continue;
+      const actor = token.actor;
 
-      actors.set(
-        token.actor.id,
-        token.actor
-      );
-
-    }
-
-    for (const actor of actors.values()) {
+      if (!actor) continue;
 
       const tracks =
         actor.system?.tracks ?? {};
@@ -258,9 +248,10 @@ export class AspectManager {
 
           sourceType: "consequence",
 
-          sourceId: actor.id,
+          // TOKEN identity
+          sourceId: token.id,
 
-          sourceName: actor.name,
+          sourceName: token.actor.name,
 
           severity: track.name,
 
