@@ -162,6 +162,11 @@ export class AspectManager {
 
     for (const actor of actors.values()) {
 
+      if (!game.user.isGM) {
+        const canObserve = actor.testUserPermission(game.user, CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER);
+        if (!canObserve) continue;
+      }
+
       const actorAspects =
         actor.system?.aspects ?? {};
 
