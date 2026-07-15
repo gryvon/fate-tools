@@ -1,6 +1,13 @@
 export class ActiveAspects {
 
+  static _instance = null;
+
   static async show() {
+
+    if(this._instance) {
+      this._instance.bringToTop();
+      return;
+    }
 
     const aspects =
       await game.fateTools
@@ -121,10 +128,15 @@ export class ActiveAspects {
         }
       },
 
-      default: "close"
+      default: "close",
+
+      close: () => {
+        ActiveAspects._instance = null;
+      }
 
     });
 
+    this._instance = dialog;
     dialog.render(true);
 
     Hooks.once(

@@ -44,13 +44,24 @@ Hooks.on(
   "getSceneControlButtons",
   (controls) => {
 
-    // Non-GMs never get the tool.
-    if (!game.user.isGM) return;
-
     const tokenControls =
       controls.tokens;
 
     if (!tokenControls) return;
+    
+    tokenControls.tools.showAspectManager = {
+      name: "showAspectManager",
+      title: "Show Aspect Manager",
+      icon: "fa-solid fa-tags",
+      button: true,
+      visible: true,
+      onClick: (active) => {
+        game.fateTools.ActiveAspects.show()  
+      }
+    }
+
+    // Non-GMs never get these tool(s).
+    if (!game.user.isGM) return;
 
     tokenControls.tools.createZone = {
       name: "createZone",
@@ -64,17 +75,6 @@ Hooks.on(
           active ? "createZone" : null;
       }
     };
-
-    tokenControls.tools.showAspectManager = {
-      name: "showAspectManager",
-      title: "Show Aspect Manager",
-      icon: "fa-solid fa-tags",
-      button: true,
-      visible: true,
-      onClick: (active) => {
-        game.fateTools.ActiveAspects.show()  
-      }
-    }
 
   }
 );

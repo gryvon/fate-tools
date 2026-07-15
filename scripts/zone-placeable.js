@@ -100,12 +100,9 @@ export class ZonePlaceable extends PIXI.Container {
       1
     );
 
-    const fillAlpha =
-      this.isHovered ? 0.9 : 0.4;
-
     bg.beginFill(
       0x000000,
-      fillAlpha
+      0.4
     );
 
     const height =
@@ -218,8 +215,7 @@ export class ZonePlaceable extends PIXI.Container {
       box.y = 35 * scale;
 
       box.eventMode = "static";
-      box.interactive = true;
-      box.buttonMode = true;
+      box.cursor = "pointer";
 
       box.hitArea =
         new PIXI.Rectangle(
@@ -236,20 +232,6 @@ export class ZonePlaceable extends PIXI.Container {
         this._onStressClicked(i);
 
       }); 
-
-      box.on("pointerover", () => {
-
-      box.alpha = 1;
-
-
-      });
-
-      box.on("pointerout", () => {
-
-      box.alpha = 0.7;
-
-      });
-
 
       this.addChild(box);
 
@@ -410,10 +392,20 @@ export class ZonePlaceable extends PIXI.Container {
 
     y += 20 * scale;
 
+    const invokeMap =
+      canvas.scene.getFlag(
+        "fate-tools",
+        "invokes"
+      ) ?? {};
+
     for (const aspect of this.zoneData.aspects) {
 
+      const key = ["zone", this.zoneData.id, "aspect", aspect].join(":");
+
+      const invokes = invokeMap[key] ?? 0;
+
       const text = new PIXI.Text(
-        `• ${aspect}`,
+        `• ${aspect} (${invokes})`,
         {
           fill: "#FFFFFF",
           fontSize: Math.round(12 * this._getUIScale()),
@@ -596,6 +588,8 @@ export class ZonePlaceable extends PIXI.Container {
 
   _drawResizeHandle() {
 
+    if (!game.user.isGM) return;
+
     const handle = new PIXI.Graphics();
 
     handle.lineStyle(
@@ -651,13 +645,23 @@ export class ZonePlaceable extends PIXI.Container {
   }
 
   _onHoverIn() {
+
     this.isHovered = true;
-    this.draw();
+
+    if (this.background) {
+      this.background.alpha = 0.9;
+    }
+
   }
 
   _onHoverOut() {
+
     this.isHovered = false;
-    this.draw();
+
+    if (this.background) {
+      this.background.alpha = 0.4;
+    }
+
   }
 
   _getUIScale() {
