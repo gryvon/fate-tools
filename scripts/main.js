@@ -120,3 +120,27 @@ Hooks.on(
   }
 );
 
+
+Hooks.on(
+  "fateToolsInvokesChanged",
+  () => {
+
+    game.fateZones
+      ?.ZoneCanvas
+      ?.redrawAllZones?.();
+
+  }
+);
+
+
+Hooks.on(
+  "updateScene",
+  () => {
+
+    ZoneCanvas.redrawAllZones();
+
+    ActiveAspects.refresh();
+
+  }
+);
+

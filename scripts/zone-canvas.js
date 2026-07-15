@@ -41,4 +41,17 @@ export class ZoneCanvas {
     this.renderedZones.clear();
   }
 
+  static redrawAllZones() {
+
+    for (
+      const zone
+      of this.renderedZones.values()
+    ) {
+
+      zone.draw();
+
+    }
+
+  }
+
 }

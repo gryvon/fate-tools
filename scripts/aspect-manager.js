@@ -66,6 +66,8 @@ export class AspectManager {
 
     await this.saveInvokeMap(map);
 
+    Hooks.callAll("fateToolsInvokesChanged");
+
   }
 
   static async getInvokes(aspect) {

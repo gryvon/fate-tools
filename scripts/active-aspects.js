@@ -169,11 +169,13 @@ export class ActiveAspects {
                 aspect.invokes + 1
               );
 
-            app.close();
+            await game.fateTools.ActiveAspects.refresh();
+
+            /*app.close();
 
             game.fateTools
               .ActiveAspects
-              .show();
+              .show(); */
 
           }
         );
@@ -202,16 +204,31 @@ export class ActiveAspects {
                 )
               );
 
-            app.close();
+            await game.fateTools.ActiveAspects.refresh();
+
+            /*app.close();
 
             game.fateTools
               .ActiveAspects
-              .show();
+              .show(); */
 
           }
         );
       }
     );
+
+  }
+
+  static async refresh() {
+
+    if (!this._instance)
+      return;
+
+    this._instance.close();
+
+    this._instance = null;
+
+    await this.show();
 
   }
 
