@@ -14,6 +14,12 @@ Hooks.once("init", () => {
     "color: lime; font-weight: bold;"
   );
 
+
+  CONFIG.Canvas.layers.fateTools = {
+    layerClass: FateToolsLayer,
+    group: "interface"
+  };
+
   game.fateZones = {
     ZonePlaceable,
     ZoneManager,
@@ -144,3 +150,43 @@ Hooks.on(
   }
 );
 
+
+export class FateToolsLayer extends InteractionLayer {
+
+  static get layerOptions() {
+    return foundry.utils.mergeObject(
+      super.layerOptions,
+      {
+        name: "fateTools",
+        zIndex: 160
+      }
+    );
+  }
+
+  async _draw() {
+
+    await super._draw();
+
+    this.eventMode = "static";
+    this.interactiveChildren = true;
+
+  }
+
+}
+
+
+Hooks.once("ready", () => {
+
+  console.log(canvas.fateTools);
+
+  console.log(
+    "eventMode:",
+    canvas.fateTools.eventMode
+  );
+
+  console.log(
+    "interactiveChildren:",
+    canvas.fateTools.interactiveChildren
+  );
+
+});

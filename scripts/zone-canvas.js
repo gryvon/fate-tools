@@ -21,7 +21,7 @@ export class ZoneCanvas {
       zone.x = data.x;
       zone.y = data.y;
 
-      canvas.stage.addChild(zone);
+      canvas.fateTools.addChild(zone);
 
       this.renderedZones.set(
         data.id,
