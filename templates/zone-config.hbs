@@ -1,0 +1,95 @@
+<form>
+
+  <div class="form-group">
+    <label>Name</label>
+
+    <input
+      type="text"
+      name="name"
+      value="{{zone.name}}"
+    />
+  </div>
+
+<div class="form-group">
+  <label>Zone Color</label>
+
+  <input
+    type="color"
+    name="color"
+    value="{{zone.color}}"
+  />
+</div>
+
+  <div class="form-group">
+    <label>Enable Stress</label>
+
+    <input
+      type="checkbox"
+      name="enableStress"
+      {{checked zone.enableStress}}
+    />
+  </div>
+
+  <div class="form-group">
+    <label>Stress Boxes</label>
+
+    <input
+      type="number"
+      name="stressBoxes"
+      value="{{zone.stressBoxes}}"
+      min="1"
+      max="20"
+    />
+  </div>
+
+  <div class="form-group">
+    <label>Enable Aspects</label>
+
+    <input
+      type="checkbox"
+      name="enableAspects"
+      {{checked zone.enableAspects}}
+    />
+  </div>
+
+  <div class="form-group">
+    <label>Enable Consequences</label>
+
+    <input
+      type="checkbox"
+      name="enableConsequences"
+      {{checked zone.enableConsequences}}
+    />
+  </div>
+
+  <hr>
+
+  <h3>Aspects</h3>
+
+  
+  <textarea name="aspects" rows="4">{{aspectsText}}</textarea>
+
+
+  <hr>
+
+  <h3>Consequences</h3>
+
+  <textarea name="consequences" rows="4">{{consequencesText}}</textarea>
+
+
+  <footer class="sheet-footer">
+
+    <button type="submit">
+      Save
+    </button>
+
+    <button
+      type="button"
+      class="delete-zone"
+    >
+      Delete Zone
+    </button>
+
+  </footer>
+
+</form>

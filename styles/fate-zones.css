@@ -1,0 +1,22 @@
+.zone-stress {
+  pointer-events: all;
+}
+
+.zone-header {
+  font-weight: bold;
+  color: white;
+}
+
+.zone-stress-box {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+
+  border: 2px solid white;
+
+  margin-right: 4px;
+}
+
+.zone-stress-box.filled {
+  background: white;
+}
