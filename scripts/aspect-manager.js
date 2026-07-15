@@ -147,7 +147,20 @@ export class AspectManager {
 
     const aspects = [];
 
-    for (const actor of game.actors.contents) {
+    const actors = new Map();
+
+    for (const token of canvas.scene.tokens.contents) {
+
+      if (!token.actor) continue;
+
+      actors.set(
+        token.actor.id,
+        token.actor
+      );
+
+    }
+
+    for (const actor of actors.values()) {
 
       const actorAspects =
         actor.system?.aspects ?? {};
@@ -199,7 +212,20 @@ export class AspectManager {
 
     const consequences = [];
 
-    for (const actor of game.actors.contents) {
+    const actors = new Map();
+
+    for (const token of canvas.scene.tokens.contents) {
+
+      if (!token.actor) continue;
+
+      actors.set(
+        token.actor.id,
+        token.actor
+      );
+
+    }
+
+    for (const actor of actors.values()) {
 
       const tracks =
         actor.system?.tracks ?? {};
