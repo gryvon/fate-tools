@@ -9,113 +9,7 @@ export class ActiveAspects {
       return;
     }
 
-    const aspects =
-      await game.fateTools
-        .AspectManager
-        .getSceneAspects();
-
-    const groups = {};
-
-    for (const aspect of aspects) {
-
-    const key =
-      `${aspect.sourceId}`;
-
-      if (!groups[key]) {
-
-        groups[key] = {
-          sourceType: aspect.sourceType,
-          sourceName: aspect.sourceName,
-          aspects: []
-        };
-
-      }
-
-      groups[key].aspects.push(aspect);
-
-    }
-
-    const regularAspects =
-      aspects.filter(
-        a => a.type === "aspect"
-      );
-
-    const consequences =
-      aspects.filter(
-        a => a.type === "consequence"
-      );
-
-    let content = "";
-
-    for (const group of Object.values(groups)) {
-
-      content += `
-        <h2>${group.sourceName}</h2>
-
-        <ul>
-
-      ${group.aspects.map(a => {
-
-        if (a.type === "consequence") {
-
-          const severity =
-            a.severity.replace(
-              " Consequence",
-              ""
-            );
-
-          return `
-            <li>
-              [Consequence]
-              [${severity}]
-              ${a.name}
-              <a
-                class="invoke-minus"
-                data-key="${game.fateTools.AspectManager.getAspectKey(a)}"
-              >
-                -
-              </a>
-
-              ${a.invokes}
-
-              <a
-                class="invoke-plus"
-                data-key="${game.fateTools.AspectManager.getAspectKey(a)}"
-              >
-                +
-              </a>
-            </li>
-          `;
-        }
-
-        return `
-          <li>
-            [Aspect]
-            ${a.name}
-            <a
-              class="invoke-minus"
-              data-key="${game.fateTools.AspectManager.getAspectKey(a)}"
-            >
-              -
-            </a>
-
-            ${a.invokes}
-
-            <a
-              class="invoke-plus"
-              data-key="${game.fateTools.AspectManager.getAspectKey(a)}"
-            >
-              +
-            </a>
-          </li>
-        `;
-
-      }).join("")}
-
-        </ul>
-      `;
-
-    }
+    let content = await this.getContent()
 
     const dialog = new Dialog({
       title: "Active Aspects",
@@ -142,8 +36,149 @@ export class ActiveAspects {
     Hooks.once(
       "renderDialog",
       (app, html) => {
+        this._attachHandlers(app, html);
+      }
+    );
 
-        html.find(".invoke-plus").click(
+  }
+
+  static async getContent() {
+
+    const aspects =
+          await game.fateTools
+            .AspectManager
+            .getSceneAspects();
+
+        const groups = {};
+
+        for (const aspect of aspects) {
+
+        const key =
+          `${aspect.sourceId}`;
+
+          if (!groups[key]) {
+
+            groups[key] = {
+              sourceType: aspect.sourceType,
+              sourceName: aspect.sourceName,
+              aspects: []
+            };
+
+          }
+
+          groups[key].aspects.push(aspect);
+
+        }
+
+        const regularAspects =
+          aspects.filter(
+            a => a.type === "aspect"
+          );
+
+        const consequences =
+          aspects.filter(
+            a => a.type === "consequence"
+          );
+
+        let content = "";
+
+        for (const group of Object.values(groups)) {
+
+          content += `
+            <h2>${group.sourceName}</h2>
+
+            <ul>
+
+          ${group.aspects.map(a => {
+
+            if (a.type === "consequence") {
+
+              const severity =
+                a.severity.replace(
+                  " Consequence",
+                  ""
+                );
+
+              return `
+                <li>
+                  [Consequence]
+                  [${severity}]
+                  ${a.name}
+                  <a
+                    class="invoke-minus"
+                    data-key="${game.fateTools.AspectManager.getAspectKey(a)}"
+                  >
+                    -
+                  </a>
+
+                  ${a.invokes}
+
+                  <a
+                    class="invoke-plus"
+                    data-key="${game.fateTools.AspectManager.getAspectKey(a)}"
+                  >
+                    +
+                  </a>
+                </li>
+              `;
+            }
+
+            return `
+              <li>
+                [Aspect]
+                ${a.name}
+                <a
+                  class="invoke-minus"
+                  data-key="${game.fateTools.AspectManager.getAspectKey(a)}"
+                >
+                  -
+                </a>
+
+                ${a.invokes}
+
+                <a
+                  class="invoke-plus"
+                  data-key="${game.fateTools.AspectManager.getAspectKey(a)}"
+                >
+                  +
+                </a>
+              </li>
+            `;
+
+          }).join("")}
+
+            </ul>
+          `;
+
+        }
+
+    return content;
+  }
+
+  static async refresh() {
+
+    if (!this._instance)
+      return;
+
+    const content =
+      await this.getContent();
+
+    const html =
+      this._instance.element;
+
+    html
+      .find(".dialog-content")
+      .html(content);
+
+    this._attachHandlers(
+      this._instance,
+      html
+    );
+
+  }
+
+  static _attachHandlers(app, html) {
+    html.find(".invoke-plus").click(
           async event => {
 
             const key =
@@ -170,12 +205,6 @@ export class ActiveAspects {
               );
 
             await game.fateTools.ActiveAspects.refresh();
-
-            /*app.close();
-
-            game.fateTools
-              .ActiveAspects
-              .show(); */
 
           }
         );
@@ -206,29 +235,8 @@ export class ActiveAspects {
 
             await game.fateTools.ActiveAspects.refresh();
 
-            /*app.close();
-
-            game.fateTools
-              .ActiveAspects
-              .show(); */
-
           }
         );
-      }
-    );
-
-  }
-
-  static async refresh() {
-
-    if (!this._instance)
-      return;
-
-    this._instance.close();
-
-    this._instance = null;
-
-    await this.show();
 
   }
 
