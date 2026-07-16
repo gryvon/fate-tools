@@ -70,6 +70,7 @@ export class ZonePlaceable extends PIXI.Container {
     this.removeChildren();
 
     this.stressGraphics = [];
+    this.isHovered = false;
 
     this._drawBackground();
     this._drawTitle();
@@ -92,6 +93,9 @@ export class ZonePlaceable extends PIXI.Container {
     if (!this.zoneData.color)
       this.zoneData.color = "#FFFFFF"
 
+    this.background = bg;
+    this.background.alpha = 0.4;
+
     bg.lineStyle(
       2,
       PIXI.utils.string2hex(
@@ -102,7 +106,7 @@ export class ZonePlaceable extends PIXI.Container {
 
     bg.beginFill(
       0x000000,
-      0.4
+      1
     );
 
     const height =
