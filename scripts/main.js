@@ -10,7 +10,7 @@ import { ActiveAspects } from "./active-aspects.js";
 Hooks.once("init", () => {
 
   console.log(
-    "%cZONE STRESS | Initializing",
+    "%cFATE TOOLS | Initializing",
     "color: lime; font-weight: bold;"
   );
 
@@ -138,12 +138,10 @@ Hooks.on(
   }
 );
 
-
 Hooks.on(
   "updateScene",
-  () => {
-
-    ZoneCanvas.redrawAllZones();
+  (data) => {
+    ZoneCanvas.drawAll();
 
     ActiveAspects.refresh();
 
@@ -173,20 +171,3 @@ export class FateToolsLayer extends InteractionLayer {
   }
 
 }
-
-
-Hooks.once("ready", () => {
-
-  console.log(canvas.fateTools);
-
-  console.log(
-    "eventMode:",
-    canvas.fateTools.eventMode
-  );
-
-  console.log(
-    "interactiveChildren:",
-    canvas.fateTools.interactiveChildren
-  );
-
-});

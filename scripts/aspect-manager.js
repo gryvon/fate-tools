@@ -16,11 +16,6 @@ export class AspectManager {
     const aspects =
       await this.getSceneAspects();
 
-      console.log("Looking for:", key);
-
-      console.log(aspects.map(a => this.getAspectKey(a))
-    );
-
     return aspects.find(
       a => this.getAspectKey(a) === key
     );

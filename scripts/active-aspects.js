@@ -185,15 +185,10 @@ export class ActiveAspects {
               event.currentTarget
                 .dataset.key;
 
-            console.log("Clicked:", key);
-            
-
             const aspect =
               await game.fateTools
                 .AspectManager
                 .getAspectByKey(key);
-
-            console.log("Aspect:", aspect);
 
             if (!aspect) return;
 
