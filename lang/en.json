@@ -1,6 +1,6 @@
 {
-  "FATEZONES.ModuleName": "Zone Stress",
-  "FATEZONES.Create": "Create Zone",
-  "FATEZONES.Edit": "Edit Zone",
-  "FATEZONES.Delete": "Delete Zone"
+  "FATETOOLS.ModuleName": "Tools of Fate",
+  "FATETOOLS.CreateZone": "Create Zone",
+  "FATETOOLS.EditZone": "Edit Zone",
+  "FATETOOLS.DeleteZone": "Delete Zone"
 }

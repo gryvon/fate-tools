@@ -34,6 +34,8 @@ Hooks.once("init", () => {
     ActiveAspects
   }
 
+  game.fateTools.pendingInvoke = null;
+
 });
 
 
@@ -62,7 +64,7 @@ Hooks.on(
       button: true,
       visible: true,
       onClick: (active) => {
-        game.fateTools.ActiveAspects.show()  
+        game.fateTools.pendingInvoke = null; game.fateTools.ActiveAspects.show();
       }
     }
 
@@ -171,3 +173,44 @@ export class FateToolsLayer extends InteractionLayer {
   }
 
 }
+
+Hooks.on(
+  "renderChatMessage",
+  (message, html) => {
+
+    if (!message.rolls?.length)
+      return;
+
+    const button = $(`
+      <button
+        class="fate-tools-invoke"
+      >
+        Invoke
+      </button>
+    `);
+
+    button.click(async () => {
+
+      game.fateTools.pendingInvoke = {
+
+        messageId: message.id,
+
+        actorId:
+          message.speaker.actor,
+
+        tokenId:
+          message.speaker.token
+
+      };
+
+      await game.fateTools
+        .ActiveAspects
+        .show();
+
+    });
+
+    html.find(".message-content")
+      .append(button);
+
+  }
+);
