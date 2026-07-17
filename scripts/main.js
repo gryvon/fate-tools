@@ -174,7 +174,179 @@ export class FateToolsLayer extends InteractionLayer {
 
 }
 
-Hooks.on(
+Hooks.on("renderChatMessageHTML", (message, html) => {
+
+  if (!message.rolls?.length) return;
+
+  const content =
+    html.querySelector(".message-content");
+
+  if (!content) return;
+
+  // --------------------
+  // Invoke Button
+  // --------------------
+
+  const button =
+    document.createElement("button");
+
+  button.className =
+    "fate-tools-invoke";
+
+  button.textContent =
+    "Invoke";
+
+  button.addEventListener(
+    "click",
+    async () => {
+
+      game.fateTools.pendingInvoke = {
+
+        messageId: message.id,
+
+        actorId:
+          message.speaker.actor,
+
+        tokenId:
+          message.speaker.token
+
+      };
+
+      await game.fateTools
+        .ActiveAspects
+        .show();
+
+    }
+  );
+
+  content.appendChild(button);
+
+  // --------------------
+  // Invocation History
+  // --------------------
+
+  const invokes =
+    message.getFlag(
+      "fate-tools",
+      "invokes"
+    ) ?? [];
+
+  if (!invokes.length)
+    return;
+
+  const originalTotal =
+    message.rolls[0].total;
+
+  let adjustedTotal =
+    originalTotal;
+
+  // Use latest reroll as the base result
+
+  const reroll =
+    invokes
+      .filter(
+        i => i.effect === "reroll"
+      )
+      .at(-1);
+
+  if (reroll) {
+
+    adjustedTotal =
+      reroll.rerolled;
+
+  }
+
+  // Apply all +2 invokes
+
+  for (const invoke of invokes) {
+
+    if (invoke.effect === "+2") {
+
+      adjustedTotal += 2;
+
+    }
+
+  }
+
+  const invokeDiv =
+    document.createElement("div");
+
+  invokeDiv.className =
+    "fate-tools-invokes";
+
+  invokeDiv.innerHTML = `
+
+    <hr>
+
+    <h4>Invocations</h4>
+
+    ${invokes.map(i => {
+
+      if (i.effect === "reroll") {
+
+        return `
+
+          <div>
+
+            ${i.user}
+            invoked
+            <strong>${i.aspect}</strong>
+
+            (${i.payment}, reroll)
+
+            <strong>
+              ${i.original}
+              →
+              ${i.rerolled}
+            </strong>
+
+          </div>
+
+        `;
+
+      }
+
+      return `
+
+        <div>
+
+          ${i.user}
+          invoked
+          <strong>${i.aspect}</strong>
+
+          (${i.payment}, +2)
+
+        </div>
+
+      `;
+
+    }).join("")}
+
+    <hr>
+
+    <div>
+
+      Original Result:
+      <strong>${originalTotal}</strong>
+
+    </div>
+
+    <div>
+
+      Adjusted Total:
+      <strong>${adjustedTotal}</strong>
+
+    </div>
+
+  `;
+
+  content.appendChild(
+    invokeDiv
+  );
+
+});
+
+/* Hooks.on(
   "renderChatMessage",
   (message, html) => {
 
@@ -213,4 +385,4 @@ Hooks.on(
       .append(button);
 
   }
-);
+); */

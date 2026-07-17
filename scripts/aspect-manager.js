@@ -289,8 +289,12 @@ export class AspectManager {
 
   static async invoke(aspect) {
     const invokeContext = game.fateTools.pendingInvoke;
-
+    const actor = game.actors.get(invokeContext.actorId);
+    const fatePoints = actor.system.details.fatePoints.current;
     const hasFreeInvokes = aspect.invokes > 0;
+    const canSpendFatePoint = fatePoints > 0;
+    const gmUser = game.users.find(u => u.isGM);
+    const gmFatePoints = gmUser?.getFlag("fate-core-official", "gmfatepoints") ?? 0;
 
     new Dialog({
       title: `Invoke: ${aspect.name}`,
@@ -298,20 +302,38 @@ export class AspectManager {
         <form>
           <h3>Payment</h3>
           <label>
-            <input
-              type="radio"
-              name="payment"
-              value="free"
+            <input type="radio" name="payment" value="free"
               ${hasFreeInvokes ? "checked" : ""}
               ${!hasFreeInvokes ? "disabled" : ""}
             >
             Use Free Invoke
             (${aspect.invokes})
           </label>
+            ${game.user.isGM ? `
+            <br>
+            <label>
+              <input
+                type="radio" name="payment" value="gmfatepoint"
+                ${gmFatePoints <= 0
+                  ? "disabled"
+                  : ""
+                }
+              >
+              Spend GM Fate Point
+              (${gmFatePoints})
+
+            </label>` : ""}
           <br>
           <label>
-            <input type="radio" name="payment" value="fatepoint">
-            Spend Fate Point
+            <input
+              type="radio"
+              name="payment"
+              value="fatepoint"
+              ${!canSpendFatePoint ? "disabled" : ""}
+              ${!hasFreeInvokes ? "checked" : ""}
+            />
+
+            Spend Fate Point (${fatePoints})
           </label>
           <hr>
           <h3>Effect</h3>
@@ -325,135 +347,71 @@ export class AspectManager {
             Reroll
           </label>
 
-        </form>
-      `,
-
+        </form>`,
       buttons: {
-
         invoke: {
-
           label: "Invoke",
-
           callback: async html => {
-
-            const payment =
-              html.find(
-                "[name='payment']:checked"
-              ).val();
-
-            const effect =
-              html.find(
-                "[name='effect']:checked"
-              ).val();
-
-            await this.resolveInvoke(
-              aspect,
-              payment,
-              effect
-            );
-
+            const payment = html.find("[name='payment']:checked").val();
+            const effect = html.find("[name='effect']:checked").val();
+            await this.resolveInvoke(aspect, payment, effect);
           }
-
         }
-
       }
-
     }).render(true);
-
   }
 
-  static async resolveInvoke(
-  aspect,
-  payment,
-  effect
-) {
+  static async resolveInvoke(aspect, payment, effect) {
 
-    if (payment === "free") {
+    const invokeContext = game.fateTools.pendingInvoke;
 
-      await this.setInvokes(
-        aspect,
-        aspect.invokes - 1
-      );
+    if (!invokeContext) return;
 
+    const msg = game.messages.get(invokeContext.messageId);
+
+    if (!msg) return;
+
+    const invokes = msg.getFlag("fate-tools", "invokes") ?? [];
+
+    const invokeData = {
+      aspect: aspect.name,
+      payment,
+      effect,
+      user: game.user.name
+    };
+
+    // Handle rerolls
+
+    if (effect === "reroll") {
+      const roll = msg.rolls[0];
+      const rerolled = await roll.reroll();
+      invokeData.original = roll.total;
+      invokeData.rerolled = rerolled.total;
     }
 
-    await ChatMessage.create({
+    invokes.push(invokeData);
 
-    content: `
+    await msg.setFlag("fate-tools", "invokes", invokes);
 
-      <h2>Aspect Invoked</h2>
+    // Spend payment
 
-      <p>
+    if (payment === "free") { await this.setInvokes(aspect, aspect.invokes - 1); }
 
-        <strong>
-          ${game.user.name}
-        </strong>
+    if (payment === "fatepoint") {
+      const actor = game.actors.get(invokeContext.actorId);
+      const current = actor.system.details.fatePoints.current;
+      await actor.update({
+        "system.details.fatePoints.current":
+          current - 1
+      });
+    }
 
-        invoked
-
-        <strong>
-          ${aspect.name}
-        </strong>
-
-      </p>
-
-      <p>
-
-        Payment:
-        ${payment}
-
-      </p>
-
-      <p>
-
-        Effect:
-        ${effect}
-
-      </p>
-
-    `
-
-  });
-
-    await ChatMessage.create({
-
-      content: `
-
-        <h2>Aspect Invoked</h2>
-
-        <p>
-
-          <strong>
-            ${game.user.name}
-          </strong>
-
-          invoked
-
-          <strong>
-            ${aspect.name}
-          </strong>
-
-        </p>
-
-        <p>
-
-          Payment:
-          ${payment}
-
-        </p>
-
-        <p>
-
-          Effect:
-          ${effect}
-
-        </p>
-
-      `
-
-    });
+    if (payment === "gmfatepoint") {
+      const gmUser = game.users.find(u => u.isGM);
+      const current = gmUser.getFlag("fate-core-official", "gmfatepoints") ?? 0;
+      await gmUser.setFlag("fate-core-official", "gmfatepoints", current - 1);
+    }
 
   }
-
 }
 
