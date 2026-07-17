@@ -6,6 +6,7 @@ import { ZoneCanvas } from "./zone-canvas.js";
 import { ZoneConfig } from "./zone-config.js";
 import { AspectManager } from "./aspect-manager.js";
 import { ActiveAspects } from "./active-aspects.js";
+import { TokenOverlay, TokenOverlayManager } from "./token-overlay.js";
 
 Hooks.once("init", () => {
 
@@ -31,7 +32,9 @@ Hooks.once("init", () => {
 
   game.fateTools = {
     AspectManager,
-    ActiveAspects
+    ActiveAspects,
+    TokenOverlay,
+    TokenOverlayManager
   }
 
   game.fateTools.pendingInvoke = null;
@@ -346,43 +349,28 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
 
 });
 
-/* Hooks.on(
-  "renderChatMessage",
-  (message, html) => {
+Hooks.on("updateActor", (actor) => {
+  game.fateTools.TokenOverlayManager.drawAll();
+})
 
-    if (!message.rolls?.length)
-      return;
+Hooks.on("updateToken", (document) => {
+  game.fateTools.TokenOverlayManager.drawAll();
+});
 
-    const button = $(`
-      <button
-        class="fate-tools-invoke"
-      >
-        Invoke
-      </button>
-    `);
+Hooks.on("refreshToken", token => {
+  game.fateTools.TokenOverlayManager.drawAll();
+});
 
-    button.click(async () => {
+Hooks.on("hoverToken", (token, hover) => {
+  game.fateTools.TokenOverlayManager.drawAll();
+});
 
-      game.fateTools.pendingInvoke = {
-
-        messageId: message.id,
-
-        actorId:
-          message.speaker.actor,
-
-        tokenId:
-          message.speaker.token
-
-      };
-
-      await game.fateTools
-        .ActiveAspects
-        .show();
-
-    });
-
-    html.find(".message-content")
-      .append(button);
-
-  }
-); */
+/*
+Hooks.on("hoverToken", (token, hovered) => {
+    if (hovered) {
+        renderOverlay(token);
+    } else if (!token.controlled) {
+        removeOverlay(token);
+    }
+});
+*/
