@@ -7,6 +7,7 @@ import { ZoneConfig } from "./zone-config.js";
 import { AspectManager } from "./aspect-manager.js";
 import { ActiveAspects } from "./active-aspects.js";
 import { TokenOverlay, TokenOverlayManager } from "./token-overlay.js";
+import { SceneAspectHUD } from "./scene-aspect-hud.js";
 
 Hooks.once("init", () => {
 
@@ -25,7 +26,8 @@ Hooks.once("init", () => {
     ZonePlaceable,
     ZoneManager,
     ZoneCanvas,
-    ZoneConfig
+    ZoneConfig,
+    SceneAspectHUD
   };
 
   game.fateZones.activeTool = null;
@@ -47,6 +49,7 @@ Hooks.on(
   async () => {
 
     await ZoneCanvas.drawAll();
+    await game.fateZones.SceneAspectHUD.render();
 
   }
 );
@@ -131,28 +134,29 @@ Hooks.on(
   }
 );
 
+Hooks.on("updateScene", () => {
+  ZoneCanvas.drawAll();
+  ActiveAspects.refresh()
+  game.fateZones.SceneAspectHUD.render();
+});
 
-Hooks.on(
-  "fateToolsInvokesChanged",
-  () => {
+Hooks.on("fateToolsInvokesChanged", () => {
+  ZoneCanvas.drawAll();
+  ActiveAspects.refresh()
+  game.fateZones.SceneAspectHUD.render();
+});
 
-    game.fateZones
-      ?.ZoneCanvas
-      ?.redrawAllZones?.();
+Hooks.on("renderFateUtilities", () => {
+  ZoneCanvas.drawAll();
+  ActiveAspects.refresh()
+  game.fateZones.SceneAspectHUD.render();
+});
 
-  }
-);
-
-Hooks.on(
-  "updateScene",
-  (data) => {
-    ZoneCanvas.drawAll();
-
-    ActiveAspects.refresh();
-
-  }
-);
-
+Hooks.on("updateSetting", () => {
+  ZoneCanvas.drawAll();
+  ActiveAspects.refresh()
+  game.fateZones.SceneAspectHUD.render();
+});
 
 export class FateToolsLayer extends InteractionLayer {
 
@@ -364,13 +368,3 @@ Hooks.on("refreshToken", token => {
 Hooks.on("hoverToken", (token, hover) => {
   game.fateTools.TokenOverlayManager.drawAll();
 });
-
-/*
-Hooks.on("hoverToken", (token, hovered) => {
-    if (hovered) {
-        renderOverlay(token);
-    } else if (!token.controlled) {
-        removeOverlay(token);
-    }
-});
-*/

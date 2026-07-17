@@ -42,137 +42,106 @@ export class ActiveAspects {
 
   }
 
-  static async getContent() {
+static async getContent() {
 
-    const invokeContext =
-      game.fateTools.pendingInvoke;
+  const invokeContext =
+    game.fateTools.pendingInvoke;
 
-    let content = "";
+  let content = "";
 
-    // Invoke Context
-    if (invokeContext) {
+  // Invoke Context
+  if (invokeContext) {
 
-      const msg =
-        game.messages.get(
-          invokeContext.messageId
-        );
+    const msg =
+      game.messages.get(
+        invokeContext.messageId
+      );
 
-      content += `
-        <div class="invoke-context">
+    content += `
+      <div class="invoke-context">
 
-          <h2>
-            Invoking With
-          </h2>
+        <h2>
+          Invoking With
+        </h2>
 
-          <p>
-            ${msg.speaker.alias}
-          </p>
+        <p>
+          ${msg.speaker.alias}
+        </p>
 
-          <p>
-            Current Roll:
-            ${msg.rolls[0].total}
-          </p>
+        <p>
+          Current Roll:
+          ${msg.rolls[0].total}
+        </p>
 
-        </div>
+      </div>
 
-        <hr>
-      `;
+      <hr>
+    `;
 
-    }
+  }
 
-    const aspects =
-      await game.fateTools
-        .AspectManager
-        .getSceneAspects();
+  const aspects =
+    await game.fateTools
+      .AspectManager
+      .getSceneAspects();
 
-    const groups = {};
+  const groups = {};
 
-    for (const aspect of aspects) {
+  for (const aspect of aspects) {
 
-      const key =
-        `${aspect.sourceId}`;
+    const key =
+      `${aspect.sourceId}`;
 
-      if (!groups[key]) {
+    if (!groups[key]) {
 
-        groups[key] = {
-          sourceType: aspect.sourceType,
-          sourceName: aspect.sourceName,
-          aspects: []
-        };
-
-      }
-
-      groups[key].aspects.push(aspect);
+      groups[key] = {
+        sourceType: aspect.sourceType,
+        sourceName: aspect.sourceName,
+        aspects: []
+      };
 
     }
 
-    for (const group of Object.values(groups)) {
+    groups[key].aspects.push(aspect);
 
-      content += `
-        <h2>${group.sourceName}</h2>
+  }
 
-        <ul>
+  for (const group of Object.values(groups)) {
 
-          ${group.aspects.map(a => {
+    content += `
+      <h2>${group.sourceName}</h2>
 
-            const invokeButton =
-              invokeContext
-                ? `
-                    <a
-                      class="invoke-aspect"
-                      data-key="${game.fateTools.AspectManager.getAspectKey(a)}"
-                    >
-                      <i class="fa-solid fa-bolt-lightning"></i>
-                      Invoke
-                    </a>
-                  `
-                : "";
+      <ul>
 
-            if (a.type === "consequence") {
+        ${group.aspects.map(a => {
 
-              const severity =
-                a.severity.replace(
-                  " Consequence",
-                  ""
-                );
-
-              return `
-
-                <li>
-
-                  [Consequence]
-                  [${severity}]
-                  ${a.name}
-
+          const invokeButton =
+            invokeContext
+              ? `
                   <a
-                    class="invoke-minus"
+                    class="invoke-aspect"
                     data-key="${game.fateTools.AspectManager.getAspectKey(a)}"
                   >
-                    -
+                    <i class="fa-solid fa-bolt-lightning"></i>
+                    Invoke
                   </a>
+                `
+              : "";
 
-                  ${a.invokes}
+          if (a.type === "consequence") {
 
-                  <a
-                    class="invoke-plus"
-                    data-key="${game.fateTools.AspectManager.getAspectKey(a)}"
-                  >
-                    +
-                  </a>
-
-                  ${invokeButton}
-
-                </li>
-
-              `;
-
-            }
+            const severity =
+              a.severity.replace(
+                " Consequence",
+                ""
+              );
 
             return `
 
               <li>
 
-                [Aspect]
+                [Consequence]
+                [${severity}]
                 ${a.name}
 
                 <a
@@ -197,16 +166,47 @@ export class ActiveAspects {
 
             `;
 
-          }).join("")}
+          }
 
-        </ul>
-      `;
+          return `
 
-    }
+            <li>
 
-    return content;
+              [Aspect]
+              ${a.name}
+
+              <a
+                class="invoke-minus"
+                data-key="${game.fateTools.AspectManager.getAspectKey(a)}"
+              >
+                -
+              </a>
+
+              ${a.invokes}
+
+              <a
+                class="invoke-plus"
+                data-key="${game.fateTools.AspectManager.getAspectKey(a)}"
+              >
+                +
+              </a>
+
+              ${invokeButton}
+
+            </li>
+
+          `;
+
+        }).join("")}
+
+      </ul>
+    `;
 
   }
+
+  return content;
+
+}
 
   static async refresh() {
 

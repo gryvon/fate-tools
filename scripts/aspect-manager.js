@@ -43,26 +43,31 @@ export class AspectManager {
 
   }
 
-  static async setInvokes(
-    aspect,
-    count
-  ) {
+  static async setInvokes(aspect, count) {
 
-    const map =
-      await this.getInvokeMap();
-
-    const key =
-      this.getAspectKey(aspect);
-
-    map[key] = Math.max(
-      0,
-      count
-    );
-
-    await this.saveInvokeMap(map);
-
+    if (aspect.sourceType === "scene") {
+      const aspects = canvas.scene.getFlag("fate-core-official", "situation_aspects") ?? [];
+      const target = aspects.find(a => a.name === aspect.name);
+      if (!target) return;
+      target.free_invokes = String(Math.max(0, count));
+      await canvas.scene.setFlag("fate-core-official", "situation_aspects", aspects);
+    }
+    else if (aspect.sourceType === "game") {
+      const aspects = game.settings.get("fate-core-official", "gameAspects") ?? [];
+      const target = aspects.find(a => a.name === aspect.name);
+      if (!target) return;
+      target.free_invokes = String(Math.max(0, count));
+      await game.settings.set("fate-core-official", "gameAspects", aspects);
+      const FU = foundry.applications.instances.get("FateUtilities");
+      if (FU) { FU.render(false); }
+    }
+    else {
+      const map = await this.getInvokeMap();
+      const key = this.getAspectKey(aspect);
+      map[key] = Math.max(0, count);
+      await this.saveInvokeMap(map);
+    }
     Hooks.callAll("fateToolsInvokesChanged");
-
   }
 
   static async getInvokes(aspect) {
@@ -77,15 +82,32 @@ export class AspectManager {
 
   }
 
-  static async getSceneAspects() {
+  static getSituationAspects() {
 
-    const aspects = [];
+    return (
+      canvas.scene.getFlag(
+        "fate-core-official",
+        "situation_aspects"
+      ) ?? []
+    ).map(a => ({
 
-    aspects.push(
-      ...(await this.getZoneAspects())
-    );
+      type: "aspect",
 
-    return aspects;
+      name: a.name,
+
+      invokes:
+        Number(a.free_invokes ?? 0),
+
+      sourceType: "scene",
+
+      sourceId:
+        canvas.scene.id,
+
+      sourceName:
+        "Scene"
+
+    }));
+
   }
 
   static async getZoneAspects() {
@@ -273,6 +295,30 @@ export class AspectManager {
 
   }
 
+  static getGameAspects() {
+
+    return (
+      game.settings.get(
+        "fate-core-official",
+        "gameAspects"
+      ) ?? []
+    ).map(a => ({
+
+      name: a.name,
+
+      invokes:
+        Number(a.free_invokes ?? 0),
+
+      sourceType: "game",
+
+      sourceId: "game",
+
+      sourceName: "Game"
+
+    }));
+
+  }
+
   static async getSceneAspects() {
 
     return [
@@ -281,7 +327,11 @@ export class AspectManager {
 
       ...(await this.getActorAspects()),
 
-      ...(await this.getActorConsequences())
+      ...(await this.getActorConsequences()),
+
+      ...(await this.getSituationAspects()),
+
+      ...(await this.getGameAspects())
 
     ];
 
