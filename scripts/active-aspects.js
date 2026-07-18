@@ -4,60 +4,40 @@ export class ActiveAspects {
 
   static async show() {
 
-    if(this._instance) {
-      this._instance.bringToTop();
-      return;
-    }
+    if(this._instance) {this._instance.bringToTop(); return; }
 
     let content = await this.getContent()
 
     const dialog = new Dialog({
       title: "Active Aspects",
-
       content,
-
       buttons: {
         close: {
           label: "Close"
         }
       },
-
       default: "close",
-
-      close: () => {
-        ActiveAspects._instance = null;
-      }
-
+      close: () => { ActiveAspects._instance = null; }
     });
 
     this._instance = dialog;
     dialog.render(true);
 
-    Hooks.once(
-      "renderDialog",
-      (app, html) => {
-        this._attachHandlers(app, html);
-      }
-    );
+    Hooks.once("renderDialog", (app, html) => { this._attachHandlers(app, html); }
+      );
 
   }
 
-static async getContent() {
+  static async getContent() {
 
-  const invokeContext =
-    game.fateTools.pendingInvoke;
+    const invokeContext = game.fateTools.pendingInvoke;
 
-  let content = "";
+    let content = "";
 
-  // Invoke Context
-  if (invokeContext) {
+    if (invokeContext) {
+      const msg = game.messages.get(invokeContext.messageId);
 
-    const msg =
-      game.messages.get(
-        invokeContext.messageId
-      );
-
-    content += `
+      content += `
       <div class="invoke-context">
 
         <h2>
@@ -76,21 +56,18 @@ static async getContent() {
       </div>
 
       <hr>
-    `;
+      `;
 
-  }
+    }
 
-  const aspects =
-    await game.fateTools
-      .AspectManager
-      .getSceneAspects();
+    const aspects = await game.fateTools.AspectManager.getSceneAspects();
 
-  const groups = {};
+    const groups = {};
 
-  for (const aspect of aspects) {
+    for (const aspect of aspects) {
 
-    const key =
-      `${aspect.sourceId}`;
+      const key =
+    `${aspect.sourceId}`;
 
     if (!groups[key]) {
 
@@ -116,8 +93,8 @@ static async getContent() {
         ${group.aspects.map(a => {
 
           const invokeButton =
-            invokeContext
-              ? `
+          invokeContext
+          ? `
                   <a
                     class="invoke-aspect"
                     data-key="${game.fateTools.AspectManager.getAspectKey(a)}"
@@ -125,18 +102,18 @@ static async getContent() {
                     <i class="fa-solid fa-bolt-lightning"></i>
                     Invoke
                   </a>
-                `
-              : "";
+            `
+            : "";
 
-          if (a.type === "consequence") {
+            if (a.type === "consequence") {
 
-            const severity =
+              const severity =
               a.severity.replace(
                 " Consequence",
                 ""
-              );
+                );
 
-            return `
+              return `
 
               <li>
 
@@ -164,11 +141,11 @@ static async getContent() {
 
               </li>
 
-            `;
+                `;
 
-          }
+              }
 
-          return `
+              return `
 
             <li>
 
@@ -195,115 +172,55 @@ static async getContent() {
 
             </li>
 
-          `;
+                `;
 
-        }).join("")}
+                }).join("")}
 
       </ul>
-    `;
+              `;
 
-  }
+            }
 
-  return content;
+            return content;
 
-}
+          }
 
-  static async refresh() {
+          static async refresh() {
+            if (!this._instance) { return; }
+            const content = await this.getContent();
+            const html = this._instance.element;
+            html.find(".dialog-content").html(content);
+            this._attachHandlers(this._instance, html);
+          }
 
-    if (!this._instance)
-      return;
-
-    const content =
-      await this.getContent();
-
-    const html =
-      this._instance.element;
-
-    html
-      .find(".dialog-content")
-      .html(content);
-
-    this._attachHandlers(
-      this._instance,
-      html
-    );
-
-  }
-
-  static _attachHandlers(app, html) {
-    html.find(".invoke-plus").click(
-          async event => {
-
-            const key =
-              event.currentTarget
-                .dataset.key;
-
-            const aspect =
-              await game.fateTools
-                .AspectManager
-                .getAspectByKey(key);
-
-            if (!aspect) return;
-
-            await game.fateTools
-              .AspectManager
-              .setInvokes(
-                aspect,
-                aspect.invokes + 1
+          static _attachHandlers(app, html) {
+            html.find(".invoke-plus").click(
+              async event => {
+                const key = event.currentTarget.dataset.key;
+                const aspect = await game.fateTools.AspectManager.getAspectByKey(key);
+                if (!aspect) { return; }
+                await game.fateTools.AspectManager.setInvokes(aspect, aspect.invokes + 1);
+                await game.fateTools.ActiveAspects.refresh();
+              }
               );
 
-            await game.fateTools.ActiveAspects.refresh();
-
-          }
-        );
-        
-        html.find(".invoke-minus").click(
-          async event => {
-
-            const key =
-              event.currentTarget
-                .dataset.key;
-
-            const aspect =
-              await game.fateTools
-                .AspectManager
-                .getAspectByKey(key);
-
-            if (!aspect) return;
-
-            await game.fateTools
-              .AspectManager
-              .setInvokes(
-                aspect,
-                Math.max(
-                  0,
-                  aspect.invokes - 1
-                )
+            html.find(".invoke-minus").click(
+              async event => {
+                const key = event.currentTarget.dataset.key;
+                const aspect = await game.fateTools.AspectManager.getAspectByKey(key);
+                if (!aspect) return;
+                await game.fateTools.AspectManager.setInvokes(aspect, Math.max(0, aspect.invokes - 1));
+                await game.fateTools.ActiveAspects.refresh();
+              }
               );
 
-            await game.fateTools.ActiveAspects.refresh();
-
+            html.find(".invoke-aspect").click(
+              async event => {
+                const key = event.currentTarget.dataset.key;
+                const aspect = await game.fateTools.AspectManager.getAspectByKey(key);
+                if (!aspect) return;
+                await game.fateTools.AspectManager.invoke(aspect);
+              }
+              );
           }
-        );
-
-        html.find(".invoke-aspect").click(
-          async event => {
-
-            const key =
-              event.currentTarget.dataset.key;
-
-            const aspect =
-              await game.fateTools
-                .AspectManager
-                .getAspectByKey(key);
-
-            if (!aspect) return;
-
-            await game.fateTools
-              .AspectManager
-              .invoke(aspect);
-
-          }
-        );
-  }
-}
+        }

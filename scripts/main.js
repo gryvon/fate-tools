@@ -144,6 +144,8 @@ Hooks.on("fateToolsInvokesChanged", () => {
   ZoneCanvas.drawAll();
   ActiveAspects.refresh()
   game.fateZones.SceneAspectHUD.render();
+  const FU = foundry.applications.instances.get("FateUtilities");
+  if (FU) { FU.render(false); }
 });
 
 Hooks.on("renderFateUtilities", () => {

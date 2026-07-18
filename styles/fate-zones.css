@@ -46,3 +46,28 @@
   z-index: 1000;
 
 }
+
+.fate-tools-countdown-track {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.fate-tools-countdown-box {
+  width: 18px;
+  height: 18px;
+
+  border: 2px solid white;
+
+  box-sizing: border-box;
+
+  cursor: pointer;
+}
+
+.fate-tools-countdown-box.filled {
+  background: white;
+}
+
+.fate-tools-countdown-container {
+  margin-top: 6px;
+}

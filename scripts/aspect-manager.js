@@ -58,8 +58,6 @@ export class AspectManager {
       if (!target) return;
       target.free_invokes = String(Math.max(0, count));
       await game.settings.set("fate-core-official", "gameAspects", aspects);
-      const FU = foundry.applications.instances.get("FateUtilities");
-      if (FU) { FU.render(false); }
     }
     else {
       const map = await this.getInvokeMap();
