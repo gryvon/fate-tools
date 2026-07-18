@@ -6,26 +6,16 @@ export class SceneAspectHUD {
 
     this.destroy();
 
-    const gameAspects =
-      game.fateTools.AspectManager
-        .getGameAspects();
+    const gameAspects = game.fateTools.AspectManager.getGameAspects();
+    const sceneAspects = game.fateTools.AspectManager.getSituationAspects();
+    const countdowns = this.getCountdowns();
+    const div = document.createElement("div");
 
-    const sceneAspects =
-      game.fateTools.AspectManager
-        .getSituationAspects();
-
-    const countdowns =
-      this.getCountdowns();
-
-    const div =
-      document.createElement("div");
-
-    div.id =
-      "fate-tools-scene-hud";
+    div.id = "fate-tools-scene-hud";
 
     div.innerHTML = `
-
       <h3>Game Aspects</h3>
+      <button id="fate-tools-new-game-aspect" class="fate-tools-new-button">+ New</button>
 
       ${gameAspects.map(a => `
         <div>
@@ -35,6 +25,7 @@ export class SceneAspectHUD {
       `).join("")}
 
       <h3>Scene Aspects</h3>
+      <button id="fate-tools-new-scene-aspect" class="fate-tools-new-button">+ New</button>
 
       ${sceneAspects.map(a => `
         <div>
@@ -52,9 +43,7 @@ export class SceneAspectHUD {
       div
     );
 
-    div.querySelectorAll(
-      ".fate-tools-countdown-box"
-    ).forEach(box => {
+    div.querySelectorAll(".fate-tools-countdown-box").forEach(box => {
 
       box.addEventListener(
         "click",
@@ -91,6 +80,12 @@ export class SceneAspectHUD {
       );
 
     });
+
+    const newGameAspectButton = document.querySelector("#fate-tools-new-game-aspect");
+    newGameAspectButton.addEventListener("click", async event => { this.newAspect("game"); });
+    const newSceneAspectButton = document.querySelector("#fate-tools-new-scene-aspect");
+    newSceneAspectButton.addEventListener("click", async event => { this.newAspect("scene"); });
+
 
 const players =
   document.querySelector("#players");
@@ -178,6 +173,66 @@ div.style.bottom =
             .join("");
 
     return boxes;
+
+  }
+
+  static async newAspect(aspect_type) {
+
+    let type_title = ""
+
+    if (aspect_type === "game") { type_title = "Game"; }
+    else if (aspect_type === "scene") { type_title = "Scene"; }
+    else { return; }
+
+    new Dialog({
+      title: `New ${type_title} Aspect`,
+      content: `
+        <input id="new-aspect-name" type="text">
+      `,
+      buttons: {
+        create: {
+          label: "Create",
+          callback: async html => { 
+          
+            const name = html.find("#new-aspect-name").val().trim();
+
+          await this.create_new_aspect(aspect_type, name) }
+        },
+        close: {
+          label: "Close"
+        },
+        
+      },
+      default: "create",
+      create: () => { }
+    }).render(true);
+  }
+
+  static async create_new_aspect(aspect_type, name, invokes=0) {
+    if (!name) { return; }
+
+    if (aspect_type === "game") {
+      const aspects = await game.settings.get("fate-core-official", "gameAspects");
+      aspects.push({
+        name: name,
+        free_invokes: invokes,
+        notes: ""
+      });
+      await game.settings.set("fate-core-official", "gameAspects", aspects);
+    }
+    else if (aspect_type === "scene") {
+      const aspects = await canvas.scene.getFlag("fate-core-official", "situation_aspects");
+      aspects.push({
+        name: name,
+        free_invokes: invokes
+      })
+      await canvas.scene.setFlag("fate-core-official", "situation_aspects", aspects)
+    }
+    else {
+      return;
+    }
+
+    Hooks.callAll("fateToolsInvokesChanged");
 
   }
 }

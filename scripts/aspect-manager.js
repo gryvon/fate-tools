@@ -428,8 +428,6 @@ export class AspectManager {
       user: game.user.name
     };
 
-    // Handle rerolls
-
     if (effect === "reroll") {
       const roll = msg.rolls[0];
       const rerolled = await roll.reroll();
