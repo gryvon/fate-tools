@@ -69,15 +69,9 @@ export class AspectManager {
   }
 
   static async getInvokes(aspect) {
-
-    const map =
-      await this.getInvokeMap();
-
-    const key =
-      this.getAspectKey(aspect);
-
+    const map = await this.getInvokeMap();
+    const key = this.getAspectKey(aspect);
     return map[key] ?? 0;
-
   }
 
   static getSituationAspects() {

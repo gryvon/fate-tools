@@ -1,3 +1,16 @@
+# Changelog
+
+## v0.7.1
+
+### Improved
+- Active Aspects migrated to Foundry VTT's ApplicationV2 framework.
+- Active Aspects redesigned with a card-based interface.
+- Added color-coded cards for Game, Scene, Zone, Player Character, and NPC sources.
+- Improved readability and organization of Active Aspects.
+- Added automatic scrolling support for large numbers of aspects.
+- Added sorting of aspect groups by source type.
+- Refactored Active Aspects rendering into smaller, maintainable components.
+
 ## v0.7.0
 
 ### Added
