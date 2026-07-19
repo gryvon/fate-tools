@@ -5,11 +5,12 @@ export class ActiveAspectsApp extends foundry.applications.api.ApplicationV2 {
     classes: ["fate-tools-active-aspects"],
     tag: "section",
     window: {
-      title: "Active Aspects"
+      title: "Active Aspects",
+      resizable: true
     },
     position: {
       width: 900,
-      height: "auto"
+      height: 700
     }
   };
 
@@ -109,68 +110,43 @@ export class ActiveAspects {
 
     return `
 
-  <div class="ft-invoke-card">
+      <div class="ft-invoke-card">
 
-    <div class="ft-invoke-header">
-      ⚡ Invoke Context
-    </div>
+        <div class="ft-invoke-header">
+          ⚡ Invoke Context
+        </div>
 
-    <div class="ft-invoke-body">
+        <div class="ft-invoke-body">
 
-      <div class="ft-invoke-label">
-        Actor
-      </div>
+          <div class="ft-invoke-label">
+            Actor
+          </div>
 
-      <div class="ft-invoke-value">
-        ${msg.speaker.alias}
-      </div>
+          <div class="ft-invoke-value">
+            ${msg.speaker.alias}
+          </div>
 
-      <div class="ft-invoke-label">
-        Roll
-      </div>
+          <div class="ft-invoke-label">
+            Roll
+          </div>
 
-      <div class="ft-invoke-value">
-        ${skill}
-      </div>
+          <div class="ft-invoke-value">
+            ${skill}
+          </div>
 
-      <div class="ft-invoke-label">
-        Current Roll
-      </div>
+          <div class="ft-invoke-label">
+            Current Roll
+          </div>
 
-      <div class="ft-invoke-roll">
-        ${msg.rolls[0].total}
-      </div>
+          <div class="ft-invoke-roll">
+            ${msg.rolls[0].total}
+          </div>
 
-    </div>
-
-  </div>
-
-`;
-/*
-
-  return `
-
-      <div class="invoke-context">
-
-        <h2>
-          Invoking With
-        </h2>
-
-        <p>
-          ${msg.speaker.alias}
-        </p>
-
-        <p>
-          Current Roll:
-          ${msg.rolls[0].total}
-        </p>
+        </div>
 
       </div>
-
-      <hr>
 
     `;
-*/
   }
 
   static _renderGroups(groups) {
