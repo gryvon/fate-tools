@@ -8,142 +8,143 @@ export class SceneAspectHUD {
 
     const gameAspects = game.fateTools.AspectManager.getGameAspects();
     const sceneAspects = game.fateTools.AspectManager.getSituationAspects();
-    const countdowns = this.getCountdowns();
+    const countdowns = game.settings.get("fate-core-official", "countdowns") ?? {};
+
     const div = document.createElement("div");
 
     div.id = "fate-tools-scene-hud";
 
     div.innerHTML = `
-      <h3>Game Aspects</h3>
-      <button id="fate-tools-new-game-aspect" class="fate-tools-new-button">+ New</button>
+        ${ this._renderAspectSection("Game Aspects", "game", gameAspects) }
+        ${ this._renderAspectSection("Scene Aspects", "scene", sceneAspects) }
+        ${ this._renderCountdownSection(countdowns) }
 
-      ${gameAspects.map(a => `
-        <div>
-          ${a.name}
-          (${a.invokes})
-        </div>
-      `).join("")}
-
-      <h3>Scene Aspects</h3>
-      <button id="fate-tools-new-scene-aspect" class="fate-tools-new-button">+ New</button>
-
-      ${sceneAspects.map(a => `
-        <div>
-          ${a.name}
-          (${a.invokes})
-        </div>
-      `).join("")}
-
-      <h3>Countdowns</h3>
-
-      ${ this._drawCountdownBoxes()}
     `;
 
-    document.body.appendChild(
-      div
-    );
+div.querySelectorAll(".fate-tools-countdown-box").forEach(box => {
 
-    div.querySelectorAll(".fate-tools-countdown-box").forEach(box => {
+  box.addEventListener(
+    "click",
+    async event => {
 
-      box.addEventListener(
-        "click",
-        async event => {
+      const id =
+        event.currentTarget.dataset.id;
 
-          const id =
-            event.currentTarget.dataset.id;
+      const index =
+        Number(
+          event.currentTarget.dataset.index
+        );
 
-          const index =
-            Number(
-              event.currentTarget.dataset.index
-            );
-
-          const countdowns =
-            foundry.utils.deepClone(
-              game.settings.get(
-                "fate-core-official",
-                "countdowns"
-              )
-            );
-
-          countdowns[id].boxes[index] =
-            !countdowns[id].boxes[index];
-
-          await game.settings.set(
+      const countdowns =
+        foundry.utils.deepClone(
+          game.settings.get(
             "fate-core-official",
-            "countdowns",
-            countdowns
-          );
+            "countdowns"
+          )
+        );
 
-          Hooks.callAll("fateToolsInvokesChanged");
+      const countdown =
+        countdowns[id];
 
-        }
+      if (
+        !countdown ||
+        !Array.isArray(
+          countdown.boxes
+        )
+      ) {
+        console.error(
+          "Invalid countdown",
+          { id, countdown }
+        );
+        return;
+      }
+
+      countdown.boxes[index] =
+        !countdown.boxes[index];
+
+      await game.settings.set(
+        "fate-core-official",
+        "countdowns",
+        countdowns
       );
 
-    });
+      Hooks.callAll(
+        "fateToolsInvokesChanged"
+      );
 
+    }
+  );
+
+});
+
+    console.log(div.innerHTML);
+
+    document.body.appendChild(div);
+
+
+
+
+    
     const newGameAspectButton = document.querySelector("#fate-tools-new-game-aspect");
     newGameAspectButton.addEventListener("click", async event => { this.newAspect("game"); });
     const newSceneAspectButton = document.querySelector("#fate-tools-new-scene-aspect");
     newSceneAspectButton.addEventListener("click", async event => { this.newAspect("scene"); });
-
-
-const players =
-  document.querySelector("#players");
-
-const bottomOffset =
-  players
-    ? players.offsetHeight + 10
-    : 10;
-
-div.style.bottom =
-  `${bottomOffset}px`;
-
+    const players = document.querySelector("#players");
+    const bottomOffset = players?players.offsetHeight + 10 : 10;
+    div.style.bottom = `${bottomOffset}px`;
     this.element = div;
+  }
 
+  static _renderAspectSection(title, type, aspects) {
+    return `
+      <div class="ft-hud-section">
+        <div class="ft-scene-hud-header">
+          ${title}
+          <button id="fate-tools-new-${type}-aspect" class="fate-tools-new-button">+ New</button>
+        </div>
+        ${this._renderAspects(aspects)}
+      </div>
+    `
+  }
+
+  static _renderAspects(aspects) {
+    return `${aspects.map(a => `
+      <div class="ft-aspect-row">
+        <span>
+          ${a.name}
+        </span>
+        <span class="ft-invoke-badge">
+          ${a.invokes}
+        </span>
+      </div>
+    `).join("")} `  
+  }
+
+  static _renderCountdownSection(countdowns) {
+    return `
+      <div class="ft-hud-section">
+        <div class="ft-scene-hud-header">
+          Countdowns
+        </div>
+      ${ this._drawCountdownBoxes(countdowns) }
+      </div>
+    `
   }
 
   static destroy() {
-
     this.element?.remove();
-
     this.element = null;
-
   }
 
   static getCountdowns() {
-
-    const countdowns =
-      game.settings.get(
-        "fate-core-official",
-        "countdowns"
-      );
-
-    if (!countdowns) {
-      return [];
-    }
-
+    const countdowns = game.settings.get("fate-core-official", "countdowns");
+    if (!countdowns) { return []; }
     return Object.values(countdowns);
-
   }
 
-  static _drawCountdownBoxes() {
-
-    const countdowns =
-      game.settings.get(
-        "fate-core-official",
-        "countdowns"
-      ) ?? {};
-
-    const boxes =
-      Object.entries(countdowns)
-        .map(([id, cd]) => {
-
-          const name =
-            cd.name.replace(
-              /<[^>]*>/g,
-              ""
-            );
-
+  static _drawCountdownBoxes(countdowns) {
+    const boxes = Object.entries(countdowns).map(([id, cd]) => {
+    const name = cd.name.replace(/<[^>]*>/g, "");
     const boxHtml =
       `<div class="fate-tools-countdown-track">` +
       cd.boxes
@@ -157,22 +158,15 @@ div.style.bottom =
         .join("")
       + `</div>`;
 
-              return `
+    return `
+      <div class="fate-tools-countdown-container">
+        <div class="fate-tools-countdown-title ft-aspect-row">${name}</div>
+        <div >${boxHtml}</div>
+      </div>
+    `;
+  }).join("");
 
-                <div class="fate-tools-countdown-container">
-
-                  <div class="fate-tools-countdown-title">${name}</div>
-
-                  <div >${boxHtml}</div>
-
-                </div>
-
-              `;
-
-            })
-            .join("");
-
-    return boxes;
+  return boxes;
 
   }
 

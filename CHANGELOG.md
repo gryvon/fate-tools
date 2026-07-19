@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.7.6
+
+### Improved
+ - Added "hover" effect to aspect rows to improve readability.
+ - Greatly improved aesthetics of the Scene HUD.
+ - Fixed bug that was turning Fate Utilities' Situation Tab Green.
+
 ## v0.7.5
 
 ### Added

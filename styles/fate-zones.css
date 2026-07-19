@@ -51,6 +51,7 @@
   display: flex;
   gap: 6px;
   margin-top: 4px;
+  justify-content: center;
 }
 
 .fate-tools-countdown-box {
@@ -70,6 +71,7 @@
 
 .fate-tools-countdown-container {
   margin-top: 6px;
+  margin-bottom: 6px;
 }
 
 .fate-tools-active-aspects {
@@ -158,12 +160,12 @@
 
 }
 
-.game  { background: #4c3b78; }
-.scene { background: #375f38; }
-.zone  { background: #2f6e72; }
-.actor { background: #6b4f3a; }
-.actor-player { background: #2f5ea8; }
-.actor-npc { background: #6b4f3a; }
+.ft-card-header.game  { background: #4c3b78; }
+.ft-card-header.scene { background: #375f38; }
+.ft-card-header.zone  { background: #2f6e72; }
+.ft-card-header.actor { background: #6b4f3a; }
+.ft-card-header.actor-player { background: #2f5ea8; }
+.ft-card-header.actor-npc { background: #6b4f3a; }
 
 .ft-invoke-card {
 
@@ -273,60 +275,33 @@
 }
 
 .ft-roll-card {
-
   margin-top: 8px;
-
   border: 1px solid #666;
-
   border-radius: 8px;
-
   overflow: hidden;
-
-  background: rgba(
-    0,
-    0,
-    0,
-    0.08
-  );
-
+  background: rgba(0, 0, 0, 0.08);
 }
 
 .ft-roll-header {
-
   background: #375f38;
-
   color: white;
-
   padding: 8px 12px;
-
   font-size: 1.1em;
-
   font-weight: bold;
-
 }
 
 .ft-roll-actor {
-
   padding: 8px 12px;
-
   font-size: 1.1em;
-
   font-weight: bold;
-
 }
 
 .ft-roll-row {
-
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
-
   padding: 4px 12px;
-
   font-size: 0.95em;
-
 }
 
 .ft-roll-row-dice {
@@ -335,77 +310,131 @@
 }
 
 .ft-roll-total {
-
   text-align: center;
-
   border-top: 1px solid #666;
-
   margin-top: 8px;
-
   padding-top: 8px;
-
 }
 
 .ft-roll-total-value {
-
   font-size: 2.2em;
-
   font-weight: bold;
-
 }
 
 .ft-roll-total-ladder {
-
   font-size: 1em;
-
   opacity: 0.85;
-
   font-style: italic;
-
 }
 
 .ft-roll-invoke {
-
   margin-top: 10px;
-
 }
 
 .ft-roll-invoke-button {
-
   width: 100%;
-
   padding: 10px;
-
   border: none;
-
   background: #d4a72c;
-
   color: black;
-
   font-weight: bold;
-
   cursor: pointer;
-
   font-size: 1.05em;
-
 }
 
 .ft-roll-invoke-button:hover {
-
   filter: brightness(1.1);
-
 }
 
 .ft-reroll-label {
-
   font-size: 0.8em;
-
   opacity: 0.65;
-
   text-align: center;
-
   margin-top: 8px;
-
   margin-bottom: 4px;
+}
 
+#fate-tools-scene-hud {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px;
+}
+
+.ft-hud-section {
+  border: 1px solid #555;
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.15);
+
+}
+
+.ft-scene-hud-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+
+.ft-hud-section.game
+.ft-scene-hud-header {
+  border-left: 4px solid #6b4cab;
+}
+
+.ft-hud-section.scene
+.ft-scene-hud-header {
+  border-left: 4px solid #4c8b4c;
+}
+
+.ft-hud-section.countdowns
+.ft-scene-hud-header {
+  border-left: 4px solid #c58c2d;
+}
+
+.ft-aspect-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+}
+
+.ft-aspect-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ft-invoke-badge {
+  min-width: 22px;
+  text-align: center;
+  border-radius: 10px;
+  padding: 2px 6px;
+  background: #2f7d32;
+  color: white;
+  font-weight: bold;
+}
+
+.fate-tools-countdown-box {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+}
+
+.fate-tools-countdown-box.filled {
+  background: #c58c2d;
+}
+
+.fate-tools-new-button {
+  border: none;
+  border-radius: 12px;
+  padding: 2px 10px;
+  font-size: 0.85em;
+  font-weight: bold;
+  cursor: pointer;
+  background: rgba(255,255,255,0.08);
+  color: var(--color-text-light-primary);
+}
+
+.fate-tools-new-button:hover {
+  background: rgba(255,255,255,0.15);
 }
