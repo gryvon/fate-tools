@@ -260,7 +260,33 @@ export class ActiveAspects {
 
   static _renderInvokeControls(aspect) {
 
-    return `
+    let content = "";
+
+    if (game.user.isGM) {
+      content += `
+        <a class="invoke-minus" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}">
+          <i class="fa-solid fa-minus"></i>
+        </a>        
+      `
+    }
+
+    content += `
+      <i class="fa-solid fa-${aspect.invokes}"></i>      
+    `
+
+    if (game.user.isGM) {
+      content += `
+        <a class="invoke-plus" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}">
+          <i class="fa-solid fa-plus"></i>
+        </a>
+      `
+    }
+
+    content += this._renderInvokeButton(aspect);
+
+    return content
+
+    /*return `
       <a class="invoke-minus" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}">
         <i class="fa-solid fa-minus"></i>
       </a>
@@ -272,7 +298,7 @@ export class ActiveAspects {
       </a>
 
       ${this._renderInvokeButton(aspect)}
-    `;
+    `; */
 
   }
   static _renderInvokeButton(aspect) {
