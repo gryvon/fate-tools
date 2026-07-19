@@ -164,3 +164,59 @@
 .actor { background: #6b4f3a; }
 .actor-player { background: #2f5ea8; }
 .actor-npc { background: #6b4f3a; }
+
+.ft-invoke-card {
+
+  margin-bottom: 12px;
+
+  border: 2px solid #d4a72c;
+
+  border-radius: 6px;
+
+  overflow: hidden;
+
+}
+
+.ft-invoke-header {
+
+  background: #d4a72c;
+
+  color: black;
+
+  font-weight: bold;
+
+  padding: 8px;
+
+}
+
+.ft-invoke-body {
+
+  padding: 8px;
+
+}
+
+.ft-invoke-label {
+
+  opacity: 0.7;
+
+  font-size: 0.8em;
+
+}
+
+.ft-invoke-value {
+
+  margin-bottom: 8px;
+
+  font-weight: bold;
+
+}
+
+.ft-invoke-roll {
+
+  font-size: 1.5em;
+
+  font-weight: bold;
+
+  color: #d4a72c;
+
+}

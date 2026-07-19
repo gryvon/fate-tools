@@ -226,8 +226,6 @@ export class TokenOverlay extends PIXI.Container {
       box.eventMode = "static";
       box.cursor = "pointer";
 
-      console.log(box.eventMode);
-
       box.on("pointerdown", async () => {
         const values =
           [...track.box_values];

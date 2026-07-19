@@ -2,7 +2,7 @@
   "id": "fate-tools",
   "title": "Tools of Fate",
   "description": "QoL Improvements for Fate Core Official",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "compatibility": {
     "minimum": "14",
     "verified": "14"

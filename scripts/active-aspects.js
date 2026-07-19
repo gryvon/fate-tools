@@ -53,8 +53,8 @@ export class ActiveAspects {
     const aspects = await game.fateTools.AspectManager.getSceneAspects();
     const groups = this._groupAspects(aspects);
     let content = `<div class="ft-content">`;
-    content += this._renderInvokeContext();
     content += `<div class="ft-card-container">`;
+    content += this._renderInvokeContext();
     content += this._renderGroups(groups);
     content += `</div></div>`;
     return content;
@@ -89,7 +89,6 @@ export class ActiveAspects {
   }
 
   static _renderInvokeContext() {
-
     const invokeContext =
       game.fateTools.pendingInvoke;
 
@@ -102,7 +101,54 @@ export class ActiveAspects {
         invokeContext.messageId
       );
 
+    const div = document.createElement("div");
+    div.innerHTML = msg.flavor;
+
+    const skill =
+    div.querySelector("h1")?.textContent ?? "";
+
     return `
+
+  <div class="ft-invoke-card">
+
+    <div class="ft-invoke-header">
+      ⚡ Invoke Context
+    </div>
+
+    <div class="ft-invoke-body">
+
+      <div class="ft-invoke-label">
+        Actor
+      </div>
+
+      <div class="ft-invoke-value">
+        ${msg.speaker.alias}
+      </div>
+
+      <div class="ft-invoke-label">
+        Roll
+      </div>
+
+      <div class="ft-invoke-value">
+        ${skill}
+      </div>
+
+      <div class="ft-invoke-label">
+        Current Roll
+      </div>
+
+      <div class="ft-invoke-roll">
+        ${msg.rolls[0].total}
+      </div>
+
+    </div>
+
+  </div>
+
+`;
+/*
+
+  return `
 
       <div class="invoke-context">
 
@@ -124,7 +170,7 @@ export class ActiveAspects {
       <hr>
 
     `;
-
+*/
   }
 
   static _renderGroups(groups) {
