@@ -8,7 +8,7 @@ export class ActiveAspectsApp extends foundry.applications.api.ApplicationV2 {
       title: "Active Aspects"
     },
     position: {
-      width: 600,
+      width: 900,
       height: "auto"
     }
   };
