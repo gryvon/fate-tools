@@ -80,11 +80,7 @@ div.querySelectorAll(".fate-tools-countdown-box").forEach(box => {
     console.log(div.innerHTML);
 
     document.body.appendChild(div);
-
-
-
-
-    
+  
     const newGameAspectButton = document.querySelector("#fate-tools-new-game-aspect");
     newGameAspectButton.addEventListener("click", async event => { this.newAspect("game"); });
     const newSceneAspectButton = document.querySelector("#fate-tools-new-scene-aspect");
@@ -100,11 +96,16 @@ div.querySelectorAll(".fate-tools-countdown-box").forEach(box => {
       <div class="ft-hud-section">
         <div class="ft-scene-hud-header">
           ${title}
-          <button id="fate-tools-new-${type}-aspect" class="fate-tools-new-button">+ New</button>
+          ${this._renderNewAspectButton(type)}
         </div>
         ${this._renderAspects(aspects)}
       </div>
     `
+  }
+
+  static _renderNewAspectButton(type) {
+    if (!game.user.isGM) { return ""; }
+    return `<button id="fate-tools-new-${type}-aspect" class="fate-tools-new-button">+ New</button>`
   }
 
   static _renderAspects(aspects) {
