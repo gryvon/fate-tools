@@ -19,6 +19,7 @@ export class ActiveAspectsApp extends foundry.applications.api.ApplicationV2 {
 
   async _replaceHTML(result, element) {
     element.innerHTML = result;
+    ActiveAspects._attachHandlers(element);
   }
 
   async close(options) {
@@ -147,7 +148,7 @@ export class ActiveAspects {
             </div>
             <div class="ft-card-body">
               ${group.aspects.map(a => this._renderAspect(a)).join("")}
-            </div>  
+            </div>
           </div>
         `).join("");
   }
@@ -172,20 +173,20 @@ export class ActiveAspects {
     return ""
   }
 
-    static _renderHeaderClass(group) {
+  static _renderHeaderClass(group) {
 
-      switch (group.sourceType) {
-        case "actor": {
-          const token = canvas.tokens.get(group.sourceId);
-          const actor = token?.actor
-          return actor?.hasPlayerOwner
-            ? "actor-player"
-            : "actor-npc";
-        }
-        default:
-          return group.sourceType;
+    switch (group.sourceType) {
+      case "actor": {
+        const token = canvas.tokens.get(group.sourceId);
+        const actor = token?.actor
+        return actor?.hasPlayerOwner
+          ? "actor-player"
+          : "actor-npc";
       }
+      default:
+        return group.sourceType;
     }
+  }
 
   static _renderAspect(aspect) {
     const invokeButton = this._renderInvokeButton(aspect);
@@ -238,23 +239,17 @@ export class ActiveAspects {
   static _renderInvokeControls(aspect) {
 
     return `
-
-      <a
-        class="invoke-minus"
-        data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}"
-      >
-        -
+      <a class="invoke-minus" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}">
+        <i class="fa-solid fa-minus"></i>
       </a>
 
-      ${aspect.invokes}
+      <i class="fa-solid fa-${aspect.invokes}"></i>
 
-      <a
-        class="invoke-plus"
-        data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}"
-      >
-        +
+      <a class="invoke-plus" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}">
+        <i class="fa-solid fa-plus"></i>
       </a>
 
+      ${this._renderInvokeButton(aspect)}
     `;
 
   }
@@ -265,16 +260,104 @@ export class ActiveAspects {
     }
 
     return `
-
       <a
-        class="invoke-aspect"
-        data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}"
-      >
+        class="invoke-aspect" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}">
         <i class="fa-solid fa-bolt-lightning"></i>
-        Invoke
       </a>
-
     `;
+
+  }
+
+  static _attachHandlers(element) {
+
+    element.querySelectorAll(".invoke-plus").forEach(el => {
+        el.addEventListener(
+          "click",
+          async event => {
+
+            const key =
+              event.currentTarget.dataset.key;
+
+            const aspect =
+              await game.fateTools
+                .AspectManager
+                .getAspectByKey(key);
+
+            if (!aspect) return;
+
+            await game.fateTools
+              .AspectManager
+              .setInvokes(
+                aspect,
+                aspect.invokes + 1
+              );
+
+            await this.refresh();
+
+          }
+        );
+
+      });
+
+    element.querySelectorAll(".invoke-minus")
+      .forEach(el => {
+
+        el.addEventListener(
+          "click",
+          async event => {
+
+            const key =
+              event.currentTarget.dataset.key;
+
+            const aspect =
+              await game.fateTools
+                .AspectManager
+                .getAspectByKey(key);
+
+            if (!aspect) return;
+
+            await game.fateTools
+              .AspectManager
+              .setInvokes(
+                aspect,
+                Math.max(
+                  0,
+                  aspect.invokes - 1
+                )
+              );
+
+            await this.refresh();
+
+          }
+        );
+
+      });
+
+    element.querySelectorAll(".invoke-aspect")
+      .forEach(el => {
+
+        el.addEventListener(
+          "click",
+          async event => {
+
+            const key =
+              event.currentTarget.dataset.key;
+
+            const aspect =
+              await game.fateTools
+                .AspectManager
+                .getAspectByKey(key);
+
+            if (!aspect) return;
+
+            await game.fateTools
+              .AspectManager
+              .invoke(aspect);
+
+          }
+        );
+
+      });
 
   }
 }
