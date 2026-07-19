@@ -77,8 +77,6 @@ div.querySelectorAll(".fate-tools-countdown-box").forEach(box => {
 
 });
 
-    console.log(div.innerHTML);
-
     document.body.appendChild(div);
   
     const newGameAspectButton = document.querySelector("#fate-tools-new-game-aspect");
