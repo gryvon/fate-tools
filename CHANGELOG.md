@@ -1,11 +1,13 @@
 # Changelog
 
-## v0.7.6
+## v0.7.7
 
 ### Improved
  - Added "hover" effect to aspect rows to improve readability.
  - Greatly improved aesthetics of the Scene HUD.
  - Fixed bug that was turning Fate Utilities' Situation Tab Green.
+ - Removed + & - free invoke buttons from Active Aspects for non-GMs.
+ - Converted "New Game/Scene Aspect" window to V2 Application.
 
 ## v0.7.5
 

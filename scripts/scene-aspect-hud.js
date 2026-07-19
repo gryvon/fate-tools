@@ -1,3 +1,58 @@
+export class NewAspectDialog extends foundry.applications.api.ApplicationV2
+{
+
+  constructor(aspectType) {
+    super();
+    this.aspectType = aspectType;
+    if (aspectType === "game") { this.type_title = "Game"; }
+    if (aspectType === "scene") { this.type_title = "Scene"; }
+    this.options.window.title = `New ${this.type_title} Aspect`;
+  }
+
+  static DEFAULT_OPTIONS = {
+    id: "fate-tools-new-aspect",
+    tag: "section",
+    window: {
+      title: `New Aspect`
+    },
+    position: {
+      width: 350,
+      height: "auto"
+    }
+  };
+
+  async _renderHTML() {
+    let type_title = ""
+
+    return `
+      <div class="ft-new-aspect">
+        <label>
+          Aspect Name
+        </label>
+        <input type="text" name="aspect-name"/>
+        <div class="ft-new-aspect-buttons">
+          <button type="button" class="ft-create-aspect">
+            Create
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+
+  async _replaceHTML(result, element) {
+
+    element.innerHTML = result;
+
+    element.querySelector(".ft-create-aspect")?.addEventListener("click", async () => {
+      const name = element.querySelector('[name="aspect-name"]')?.value?.trim();
+      if (!name) { return; }
+      await SceneAspectHUD.create_new_aspect(this.aspectType, name);
+      this.close();
+    });
+  }
+}
+
 export class SceneAspectHUD {
 
   static element = null;
@@ -169,15 +224,11 @@ div.querySelectorAll(".fate-tools-countdown-box").forEach(box => {
 
   }
 
-  static async newAspect(aspect_type) {
+  static async newAspect(aspectType) {
 
-    let type_title = ""
+    new NewAspectDialog(aspectType).render(true);
 
-    if (aspect_type === "game") { type_title = "Game"; }
-    else if (aspect_type === "scene") { type_title = "Scene"; }
-    else { return; }
-
-    new Dialog({
+    /*new Dialog({
       title: `New ${type_title} Aspect`,
       content: `
         <input id="new-aspect-name" type="text">
@@ -198,7 +249,7 @@ div.querySelectorAll(".fate-tools-countdown-box").forEach(box => {
       },
       default: "create",
       create: () => { }
-    }).render(true);
+    }).render(true);*/
   }
 
   static async create_new_aspect(aspect_type, name, invokes=0) {
