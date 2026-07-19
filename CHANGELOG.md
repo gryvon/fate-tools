@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.7.5
+
+### Added
+- Custom FateTools roll card replacement.
+- Fate dice visualization.
+- Roll metadata extraction and storage.
+- Stunt tracking on roll cards.
+- Invoke tracking on roll cards.
+- Reroll tracking with dice display.
+- Dynamic total calculation.
+- Ladder result display.
+- Invoke integration from roll cards.
+- Dice So Nice support for rerolls.
+
+### Improved
+- Replaced Fate Core Official roll card interface with FateTools roll cards.
+
 ## v0.7.1
 
 ### Improved

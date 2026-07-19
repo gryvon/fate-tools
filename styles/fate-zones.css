@@ -220,3 +220,192 @@
   color: #d4a72c;
 
 }
+
+.ft-die {
+
+  display: inline-flex;
+
+  justify-content: center;
+  align-items: center;
+
+  width: 40px;
+  height: 40px;
+
+  border: 2px solid #000;
+
+  border-radius: 6px;
+
+  margin-right: 4px;
+
+  font-weight: bold;
+
+  font-size: 54px;
+
+  box-sizing: border-box;
+
+  background: rgba(255,255,255,1);
+
+}
+
+.ft-die.plus {
+  color: black;
+}
+
+.ft-die.minus {
+  color: black;
+}
+
+.ft-die.blank {
+  background: rgba(255,255,255,1);
+  color: transparent;
+}
+
+.ft-die.plus::before {
+  content: "+";
+}
+
+.ft-die.minus::before {
+  content: "-";
+}
+
+.ft-die.blank::before {
+  content: "x";
+}
+
+.ft-roll-card {
+
+  margin-top: 8px;
+
+  border: 1px solid #666;
+
+  border-radius: 8px;
+
+  overflow: hidden;
+
+  background: rgba(
+    0,
+    0,
+    0,
+    0.08
+  );
+
+}
+
+.ft-roll-header {
+
+  background: #375f38;
+
+  color: white;
+
+  padding: 8px 12px;
+
+  font-size: 1.1em;
+
+  font-weight: bold;
+
+}
+
+.ft-roll-actor {
+
+  padding: 8px 12px;
+
+  font-size: 1.1em;
+
+  font-weight: bold;
+
+}
+
+.ft-roll-row {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  padding: 4px 12px;
+
+  font-size: 0.95em;
+
+}
+
+.ft-roll-row-dice {
+  display: flex;
+  justify-content: center;
+}
+
+.ft-roll-total {
+
+  text-align: center;
+
+  border-top: 1px solid #666;
+
+  margin-top: 8px;
+
+  padding-top: 8px;
+
+}
+
+.ft-roll-total-value {
+
+  font-size: 2.2em;
+
+  font-weight: bold;
+
+}
+
+.ft-roll-total-ladder {
+
+  font-size: 1em;
+
+  opacity: 0.85;
+
+  font-style: italic;
+
+}
+
+.ft-roll-invoke {
+
+  margin-top: 10px;
+
+}
+
+.ft-roll-invoke-button {
+
+  width: 100%;
+
+  padding: 10px;
+
+  border: none;
+
+  background: #d4a72c;
+
+  color: black;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  font-size: 1.05em;
+
+}
+
+.ft-roll-invoke-button:hover {
+
+  filter: brightness(1.1);
+
+}
+
+.ft-reroll-label {
+
+  font-size: 0.8em;
+
+  opacity: 0.65;
+
+  text-align: center;
+
+  margin-top: 8px;
+
+  margin-bottom: 4px;
+
+}

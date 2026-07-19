@@ -405,15 +405,23 @@ export class AspectManager {
 
   static async resolveInvoke(aspect, payment, effect) {
 
-    const invokeContext = game.fateTools.pendingInvoke;
+    const invokeContext =
+      game.fateTools.pendingInvoke;
 
     if (!invokeContext) return;
 
-    const msg = game.messages.get(invokeContext.messageId);
+    const msg =
+      game.messages.get(
+        invokeContext.messageId
+      );
 
     if (!msg) return;
 
-    const invokes = msg.getFlag("fate-tools", "invokes") ?? [];
+    const invokes =
+      msg.getFlag(
+        "fate-tools",
+        "invokes"
+      ) ?? [];
 
     const invokeData = {
       aspect: aspect.name,
@@ -423,33 +431,109 @@ export class AspectManager {
     };
 
     if (effect === "reroll") {
-      const roll = msg.rolls[0];
-      const rerolled = await roll.reroll();
-      invokeData.original = roll.total;
-      invokeData.rerolled = rerolled.total;
+
+      const roll =
+        msg.rolls[0];
+
+      const rerolled =
+        await roll.reroll();
+
+
+    if (game.dice3d) {
+
+      await game.dice3d.showForRoll(
+        rerolled,
+        game.user
+      );
+
     }
 
-    invokes.push(invokeData);
+      invokeData.original =
+        roll.total;
 
-    await msg.setFlag("fate-tools", "invokes", invokes);
+      invokeData.rerolled =
+        rerolled.total;
+
+      const originalTerm =
+        roll.terms.find(
+          t => t.results
+        );
+
+      invokeData.originalDice =
+        originalTerm?.results?.map(
+          r => r.result
+        ) ?? [];
+
+      const rerolledTerm =
+        rerolled.terms.find(
+          t => t.results
+        );
+
+      invokeData.rerolledDice =
+        rerolledTerm?.results?.map(
+          r => r.result
+        ) ?? [];
+
+    }
+
+    invokes.push(
+      invokeData
+    );
+
+    await msg.setFlag(
+      "fate-tools",
+      "invokes",
+      invokes
+    );
 
     // Spend payment
 
-    if (payment === "free") { await this.setInvokes(aspect, aspect.invokes - 1); }
+    if (payment === "free") {
+
+      await this.setInvokes(
+        aspect,
+        aspect.invokes - 1
+      );
+
+    }
 
     if (payment === "fatepoint") {
-      const actor = game.actors.get(invokeContext.actorId);
-      const current = actor.system.details.fatePoints.current;
+
+      const actor =
+        game.actors.get(
+          invokeContext.actorId
+        );
+
+      const current =
+        actor.system.details
+          .fatePoints.current;
+
       await actor.update({
         "system.details.fatePoints.current":
           current - 1
       });
+
     }
 
     if (payment === "gmfatepoint") {
-      const gmUser = game.users.find(u => u.isGM);
-      const current = gmUser.getFlag("fate-core-official", "gmfatepoints") ?? 0;
-      await gmUser.setFlag("fate-core-official", "gmfatepoints", current - 1);
+
+      const gmUser =
+        game.users.find(
+          u => u.isGM
+        );
+
+      const current =
+        gmUser.getFlag(
+          "fate-core-official",
+          "gmfatepoints"
+        ) ?? 0;
+
+      await gmUser.setFlag(
+        "fate-core-official",
+        "gmfatepoints",
+        current - 1
+      );
+
     }
 
   }
