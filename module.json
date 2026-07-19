@@ -36,5 +36,7 @@
       "name": "English",
       "path": "lang/en.json"
     }
-  ]
+  ],
+  "download": "https://github.com/gryvon/fate-tools/releases/download/v0.7.5/fate-tools-v0.7.5.zip",
+  "manifest": "https://raw.githubusercontent.com/gryvon/fate-tools/refs/heads/main/module.json"
 }
