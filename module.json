@@ -35,8 +35,8 @@
       "lang": "en",
       "name": "English",
       "path": "lang/en.json"
-    }
+    }8
   ],
-  "download": "https://github.com/gryvon/fate-tools/releases/download/v0.7.5/fate-tools-v0.7.5.zip",
+  "download": "https://github.com/gryvon/fate-tools/releases/download/v0.7.8/fate-tools-v0.7.8.zip",
   "manifest": "https://raw.githubusercontent.com/gryvon/fate-tools/refs/heads/main/module.json"
 }
