@@ -169,6 +169,8 @@ export class TokenOverlay extends PIXI.Container {
     y
   ) {
 
+    const color = track["fate-tools"]?.color ?? "#CCCCCC";
+
     const label =
       new PIXI.Text(
         track.name.charAt(0),
@@ -206,7 +208,7 @@ export class TokenOverlay extends PIXI.Container {
       if (track.box_values[i]) {
 
         box.beginFill(
-          0x00AA00
+          color
         );
 
       }

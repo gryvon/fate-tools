@@ -46,7 +46,6 @@ Hooks.once("init", () => {
 
 });
 
-
 Hooks.on(
   "canvasReady",
   async () => {
@@ -425,3 +424,74 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
   flavor?.remove();
   }
 );
+
+
+Hooks.on("renderEditEntityTrack", (app, html) => {
+
+  injectTrackColorPicker(app, html, "#edit_entity_track_boxes");
+
+});
+
+Hooks.on("renderEditTracks", (app, html) => {
+  injectTrackColorPicker(app, html, "#edit_track_boxes");
+});
+
+Hooks.once("ready", () => {
+
+  const originalSave = EditTracks.prototype._onSaveTrackButton;
+
+  EditTracks.prototype._onSaveTrackButton = async function(event) {
+    saveTrackColor(this.track, this.element);
+    return originalSave.call(this, event);
+  };
+
+  const entityOriginalSave = EditEntityTrack.prototype._onSaveTrackButton;
+
+  EditEntityTrack.prototype._onSaveTrackButton = async function(event) {
+    saveTrackColor(this.track, this.element);
+    return entityOriginalSave.call(this, event);  
+  };
+
+});
+
+function injectTrackColorPicker(app, html, inputId) {
+  const boxesInput = html.querySelector(inputId);
+
+  if (!boxesInput) return;
+
+  const row = boxesInput.closest("tr");
+
+  if (!row) return;
+
+  const color = app.track?.["fate-tools"]?.color??"#cccccc";
+
+  const colorRow = document.createElement("tr");
+
+  colorRow.style.backgroundColor = "transparent";
+
+  colorRow.innerHTML = `
+    <td>
+      Track Color
+    </td>
+
+    <td>
+      <input
+        type="color"
+        id="ft-track-color"
+        value="${color}"
+      >
+    </td>
+  `;
+
+  row.insertAdjacentElement(
+    "afterend",
+    colorRow
+  ); 
+}
+
+function saveTrackColor(track, element) {
+  const color = element.querySelector("#ft-track-color")?.value;
+  if (!color) return;
+  track["fate-tools"] ??= {};
+  track["fate-tools"].color = color;
+}

@@ -1,10 +1,11 @@
 # Changelog
 
-## v0.7.9
+## v0.7.11
 
 ### Fixed
  - Fixed bug with chat card roll total.
  - Token HUD now matches stress boxes when linked skill increases the track length.
+ - Stress Tracks now have customizable colors.
 
 ## v0.7.8
 
