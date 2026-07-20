@@ -339,7 +339,7 @@ static _renderRerolls(invokes) {
 
   static _calculateTotal(rollData, invokes) {
 
-    let last_dice = this.getCurrentDice(invokes);
+    let last_dice = this.getCurrentDice(rollData, invokes);
 
     let total = last_dice.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 
@@ -381,9 +381,16 @@ static _renderRerolls(invokes) {
     return "Catastrophic";
   }
 
-static getCurrentDice(invokes) {
-  /* const invokes = message.getFlag("fate-tools", "invokes") ?? []; */
-  const reroll = invokes.filter(i => i.effect === "reroll").at(-1);
-  if (reroll?.rerolledDice?.length) { return reroll.rerolledDice; }
-  return ( message.getFlag("fate-tools", "rollData")?.dice ?? [] );
-}}
+  static getCurrentDice(rollData, invokes = []) {
+
+    const reroll =
+      invokes
+        .findLast(i => i.effect === "reroll");
+
+    return (
+      reroll?.rerolledDice ??
+      rollData?.dice ??
+      []
+    );
+  }
+}
