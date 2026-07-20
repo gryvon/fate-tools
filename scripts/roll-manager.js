@@ -1,3 +1,69 @@
+export class ModifyRollDialog extends foundry.applications.api.ApplicationV2
+{
+  constructor(messageId) {
+    super();
+    this.messageId = messageId;
+  }
+
+  static DEFAULT_OPTIONS = {
+    id: "fate-tools-modify-roll",
+    tag: "section",
+    window: {
+      title: "Modify Roll"
+    },
+    position: {
+      width: 350,
+      height: "auto"
+    }
+  };
+
+  async _renderHTML() {
+    return `
+      <div class="ft-modify-roll-new">
+        <label>
+          Description:
+        </label>
+        <input type="text" name="modify-roll-name">
+      </div>
+      <div class="ft-modify-roll-new">
+        <label>
+          Modifier:
+        </label>
+        <input type="number" value="0" name="modify-roll-value">
+        <div class="ft-new-aspect-buttons">
+          <button type="button" class="ft-create-aspect">
+            Create
+          </button>
+        </div>
+      </div>
+    `
+  }
+
+  async _replaceHTML(result, element) {
+    element.innerHTML = result;
+    element.querySelector(".ft-create-aspect")?.addEventListener("click", async() => {
+      const desc = element.querySelector('[name="modify-roll-name"]')?.value?.trim();
+      const modifier = Number(element.querySelector('[name="modify-roll-value"]')?.value) || 0;
+      if (!desc) { return; }
+      const msg = game.messages.get(this.messageId);
+      const rollData = msg.getFlag("fate-tools", "rollData") ?? [];
+      const modifiers = rollData.modifiers ?? [];
+      modifiers.push(
+        {
+          name: desc,
+          type: "manual",
+          value: modifier
+        }
+      );
+      await msg.setFlag("fate-tools", "rollData", rollData);
+      await msg.update({});
+
+      this.close();
+    })
+  }
+
+}
+
 export class RollManager {
 
   static extractRollData(message) {
@@ -53,8 +119,7 @@ export class RollManager {
   }
 
   static renderRollCard(rollData, invokes) {
-
-    return `
+    const html = `
       <div class="ft-roll-card">
         ${this._renderHeader(rollData)}
         ${this._renderActor(rollData)}
@@ -66,16 +131,20 @@ export class RollManager {
         ${this._renderInvokeButton(rollData, invokes)}
       </div>
     `;
+
+    return html;
   }
 
   static _renderHeader(rollData) {
 
     return `
       <div class="ft-roll-header">
-
-        ${rollData.skill}
-
+        <div class="ft-roll-skill-title">
+          ${rollData.skill}
+        </div>
+        ${this._renderModifyButton(rollData)}
       </div>
+
     `;
 
   }
@@ -143,24 +212,21 @@ export class RollManager {
       </div>
     `;
 
-    html += rollData.modifiers
-      .map(mod => `
+    html += rollData.modifiers.map(mod => `
+      <div class="ft-roll-row">
 
-        <div class="ft-roll-row">
+        <span>
+          ${mod.name}
+        </span>
 
-          <span>
-            ${mod.name}
-          </span>
+        <span>
+          ${mod.value >= 0 ? "+" : ""}
+          ${mod.value}
+        </span>
 
-          <span>
-            ${mod.value >= 0 ? "+" : ""}
-            ${mod.value}
-          </span>
+      </div>
 
-        </div>
-
-      `)
-      .join("");
+    `).join("");
 
     return html;
   }
@@ -200,26 +266,27 @@ export class RollManager {
     const ladder = this._getLadder(total);
 
     return `
-
       <div class="ft-roll-total">
-
         <div class="ft-roll-total-value">
-
           ${total >= 0 ? "+" : ""}
           ${total}
-
         </div>
-
         <div class="ft-roll-total-ladder">
-
           (${ladder})
-
         </div>
-
       </div>
-
     `;
 
+  }
+
+  static _renderModifyButton(rollData) {
+    return `
+      <div class="ft-roll-modify">
+        <button class="ft-roll-modify-button" data-message-id="${rollData.messageId}">
+          <i class="fa-solid fa-screwdriver-wrench"></i>
+        </button>
+      </div>
+    `
   }
 
   static _renderInvokeButton(rollData) {
@@ -258,30 +325,23 @@ static _renderRerolls(invokes) {
   }
 
   return `
-
     <div class="ft-reroll-section">
-
       <div class="ft-reroll-label">
         Rerolled
       </div>
-
       <div class="ft-roll-row-dice">
-
-        ${reroll.rerolledDice
-          .map(d => this._renderDie(d))
-          .join("")}
-
+        ${reroll.rerolledDice.map(d => this._renderDie(d)).join("")}
       </div>
-
     </div>
-
   `;
 
 }
 
   static _calculateTotal(rollData, invokes) {
 
-    let total = rollData.total;
+    let last_dice = this.getCurrentDice(invokes);
+
+    let total = last_dice.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 
     if (invokes?.length > 0) {
       for (const invoke of invokes) {
@@ -293,6 +353,12 @@ static _renderRerolls(invokes) {
         if (invoke.effect === "reroll") {
           total = invoke.rerolled;
         }
+      }
+    }
+
+    if (rollData.modifiers?.length > 0) {
+      for (const mod of rollData.modifiers) {
+        total += mod.value;
       }
     }
 
@@ -314,4 +380,10 @@ static _renderRerolls(invokes) {
 
     return "Catastrophic";
   }
-}
+
+static getCurrentDice(invokes) {
+  /* const invokes = message.getFlag("fate-tools", "invokes") ?? []; */
+  const reroll = invokes.filter(i => i.effect === "reroll").at(-1);
+  if (reroll?.rerolledDice?.length) { return reroll.rerolledDice; }
+  return ( message.getFlag("fate-tools", "rollData")?.dice ?? [] );
+}}

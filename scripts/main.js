@@ -8,7 +8,7 @@ import { AspectManager } from "./aspect-manager.js";
 import { ActiveAspects } from "./active-aspects.js";
 import { TokenOverlay, TokenOverlayManager } from "./token-overlay.js";
 import { SceneAspectHUD } from "./scene-aspect-hud.js";
-import { RollManager } from "./roll-manager.js";
+import { RollManager, ModifyRollDialog } from "./roll-manager.js";
 
 Hooks.once("init", () => {
 
@@ -38,7 +38,8 @@ Hooks.once("init", () => {
     ActiveAspects,
     TokenOverlay,
     TokenOverlayManager,
-    RollManager
+    RollManager,
+    ModifyRollDialog
   }
 
   game.fateTools.pendingInvoke = null;
@@ -381,121 +382,46 @@ Hooks.on("createChatMessage", async (message) => {
   console.log("CREATE", message.id)
 });
 
-Hooks.on(
-  "renderChatMessageHTML",
-  (message, html) => {
+Hooks.on("renderChatMessageHTML", (message, html) => {
+  if (!message.rolls.length) { return; }
 
-    if (!message.rolls.length)
-      return;
+  const rollData = message.getFlag("fate-tools", "rollData");
+  const invokes = message.getFlag("fate-tools", "invokes") ?? [];
 
-    const rollData =
-      message.getFlag(
-        "fate-tools",
-        "rollData"
-      );
+  if (!rollData) { return; }
 
-    const invokes =
-      message.getFlag(
-        "fate-tools",
-        "invokes"
-      ) ?? [];
+  const content = html.querySelector(".message-content");
 
-    if (!rollData)
-      return;
+  if (!content) { return; }
 
-    const content =
-      html.querySelector(
-        ".message-content"
-      );
+  const newHTML = game.fateTools.RollManager.renderRollCard(rollData, invokes);
 
-    if (!content)
-      return;
+  content.innerHTML = newHTML;
 
-    const newHTML =
-      game.fateTools.RollManager
-        .renderRollCard(
-          rollData,
-          invokes
-        );
+  const button = content.querySelector(".ft-roll-invoke-button");
 
-    content.innerHTML =
-      newHTML;
+  if (button) {
+    button.addEventListener("click", async event => {
+      game.fateTools.pendingInvoke = {
+        messageId: event.currentTarget.dataset.messageId,
+        actorId: event.currentTarget.dataset.actorId,
+        tokenId: event.currentTarget.dataset.tokenId
+      };
 
-    const button =
-      content.querySelector(
-        ".ft-roll-invoke-button"
-      );
-
-    if (button) {
-
-      button.addEventListener(
-        "click",
-        async event => {
-
-          game.fateTools.pendingInvoke = {
-            messageId:
-              event.currentTarget
-                .dataset.messageId,
-
-            actorId:
-              event.currentTarget
-                .dataset.actorId,
-
-            tokenId:
-              event.currentTarget
-                .dataset.tokenId
-          };
-
-          await game.fateTools
-            .ActiveAspects
-            .show();
-
-        }
-      );
-
-    }
- 
-  const flavor =
-  html.querySelector(
-    ".flavor-text"
-  );
-
-  flavor?.remove();
-
-  }
-);
-
-/* customCard
-  .querySelectorAll(
-    ".ft-roll-invoke-button"
-  )
-  .forEach(button => {
-
-    button.addEventListener(
-      "click",
-      async event => {
-
-        const target =
-          event.currentTarget;
-
-        game.fateTools.pendingInvoke = {
-
-          messageId:
-            target.dataset.messageId,
-
-          actorId:
-            target.dataset.actorId,
-
-          tokenId:
-            target.dataset.tokenId
-
-        };
-
-        await game.fateTools
-          .ActiveAspects
-          .show();
-
+      await game.fateTools.ActiveAspects.show();
       }
     );
+  }
 
-  }); */
+  const modifyButton = content.querySelector(".ft-roll-modify-button");
+  if (modifyButton) {
+    modifyButton.addEventListener("click", async event => {
+      const messageId = event.currentTarget.dataset.messageId;
+      new game.fateTools.ModifyRollDialog(messageId).render(true);
+    });
+  }
+ 
+  const flavor = html.querySelector(".flavor-text");
+  flavor?.remove();
+  }
+);

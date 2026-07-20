@@ -288,6 +288,34 @@
   padding: 8px 12px;
   font-size: 1.1em;
   font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ft-roll-skill-title {
+  flex: 1;
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+.ft-roll-modify-button {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 4px;
+  background: #d4a72c;
+  color: #333;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ft-roll-modify-button:hover {
+  filter: brightness(1.1);
 }
 
 .ft-roll-actor {
