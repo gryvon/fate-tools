@@ -259,8 +259,50 @@ export class ActiveAspects {
   }
 
   static _renderInvokeControls(aspect) {
+    return `
+      <div class="ft-invoke-stack">
 
-    let content = "";
+        ${game.user.isGM ? `
+          <button class="invoke-control-button" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}" data-action="plus" data-type="player">
+            +
+          </button>
+        ` : ""}
+
+        <span class="ft-invoke-badge">
+          ${aspect.invokes ?? 0}
+        </span>
+
+        ${game.user.isGM ? `
+          <button class="invoke-control-button" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}" data-action="minus" data-type="player">
+            -
+          </button>
+        ` : ""}
+
+      </div>
+
+      <div class="ft-invoke-stack">
+
+        ${game.user.isGM ? `
+          <button class="invoke-control-button" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}" data-action="plus" data-type="gm">
+            +
+          </button>
+        ` : ""}
+
+        <span class="ft-gm-invoke-badge">
+          ${aspect.gm_invokes ?? 0}
+        </span>
+
+        ${game.user.isGM ? `
+          <button class="invoke-control-button" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}" data-action="minus" data-type="gm">
+            -
+          </button>
+        ` : ""}
+
+      </div>
+          `;
+        }
+
+    /*let content = "";
 
     if (game.user.isGM) {
       content += `
@@ -286,21 +328,8 @@ export class ActiveAspects {
 
     return content
 
-    /*return `
-      <a class="invoke-minus" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}">
-        <i class="fa-solid fa-minus"></i>
-      </a>
+  }*/
 
-      <i class="fa-solid fa-${aspect.invokes}"></i>
-
-      <a class="invoke-plus" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}">
-        <i class="fa-solid fa-plus"></i>
-      </a>
-
-      ${this._renderInvokeButton(aspect)}
-    `; */
-
-  }
   static _renderInvokeButton(aspect) {
 
     if (!game.fateTools.pendingInvoke) {
@@ -318,68 +347,32 @@ export class ActiveAspects {
 
   static _attachHandlers(element) {
 
-    element.querySelectorAll(".invoke-plus").forEach(el => {
-        el.addEventListener(
-          "click",
-          async event => {
+    element.querySelectorAll(".invoke-control-button").forEach(el => {
+      el.addEventListener("click", async event => {
+        const key = event.currentTarget.dataset.key;
+        const action = event.currentTarget.dataset.action;
+        const type = event.currentTarget.dataset.type;
+        const aspect = await game.fateTools.AspectManager.getAspectByKey(key);
 
-            const key =
-              event.currentTarget.dataset.key;
+        if (!aspect) { return; }
 
-            const aspect =
-              await game.fateTools
-                .AspectManager
-                .getAspectByKey(key);
+        let invokes = aspect.invokes;
+        let gm_invokes = aspect.gm_invokes;
 
-            if (!aspect) return;
 
-            await game.fateTools
-              .AspectManager
-              .setInvokes(
-                aspect,
-                aspect.invokes + 1
-              );
+        if (action === "plus") {
+          if (type === "gm") { gm_invokes += 1; }
+          else if (type === "player") { invokes += 1; }
+        }
+        else if (action === "minus") {
+          if (type === "gm") { gm_invokes -= 1; }
+          else if (type === "player") { invokes -= 1; }
+        }
 
-            await this.refresh();
+        await game.fateTools.AspectManager.setInvokes(aspect, Math.max(0, invokes), Math.max(0, gm_invokes))
 
-          }
-        );
-
-      });
-
-    element.querySelectorAll(".invoke-minus")
-      .forEach(el => {
-
-        el.addEventListener(
-          "click",
-          async event => {
-
-            const key =
-              event.currentTarget.dataset.key;
-
-            const aspect =
-              await game.fateTools
-                .AspectManager
-                .getAspectByKey(key);
-
-            if (!aspect) return;
-
-            await game.fateTools
-              .AspectManager
-              .setInvokes(
-                aspect,
-                Math.max(
-                  0,
-                  aspect.invokes - 1
-                )
-              );
-
-            await this.refresh();
-
-          }
-        );
-
-      });
+      })
+    })
 
     element.querySelectorAll(".invoke-aspect")
       .forEach(el => {

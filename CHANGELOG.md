@@ -1,6 +1,9 @@
 # Changelog
 
-## v0.7.11
+## v0.7.12
+
+### Added
+ - Added GM Free Invoke System.
 
 ### Fixed
  - Fixed bug with chat card roll total.

@@ -359,21 +359,6 @@
   margin-top: 10px;
 }
 
-.ft-roll-invoke-button {
-  width: 100%;
-  padding: 10px;
-  border: none;
-  background: #d4a72c;
-  color: black;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 1.05em;
-}
-
-.ft-roll-invoke-button:hover {
-  filter: brightness(1.1);
-}
-
 .ft-reroll-label {
   font-size: 0.8em;
   opacity: 0.65;
@@ -432,12 +417,36 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
+.ft-scene-aspect-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  font-size: 0.8em;
+}
+
+.ft-invoke-container {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
 .ft-invoke-badge {
   min-width: 22px;
   text-align: center;
   border-radius: 10px;
   padding: 2px 6px;
   background: #2f7d32;
+  color: white;
+  font-weight: bold;
+}
+
+.ft-gm-invoke-badge {
+  min-width: 22px;
+  text-align: center;
+  border-radius: 10px;
+  padding: 2px 6px;
+  background: #a53939;
   color: white;
   font-weight: bold;
 }
@@ -465,4 +474,55 @@
 
 .fate-tools-new-button:hover {
   background: rgba(255,255,255,0.15);
+}
+
+.ft-aspect-controls {
+
+  display: flex;
+
+  gap: 8px;
+
+  align-items: center;
+
+}
+
+.ft-aspect-controls {
+
+  display: flex;
+
+  gap: 8px;
+
+  align-items: center;
+
+}
+
+.ft-invoke-stack {
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 2px;
+
+}
+
+.ft-invoke-stack button {
+
+  width: 12px;
+  height: 12px;
+
+  min-height: 12px;
+
+  padding: 0;
+  margin: 0;
+
+  line-height: 10px;
+  font-size: 10px;
+
+  border: none;
+
+  /*border-radius: 3px;*/
+
 }

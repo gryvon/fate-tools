@@ -162,16 +162,22 @@ div.querySelectorAll(".fate-tools-countdown-box").forEach(box => {
   }
 
   static _renderAspects(aspects) {
-    return `${aspects.map(a => `
-      <div class="ft-aspect-row">
+    const html = `${aspects.map(a => `
+      <div class="ft-scene-aspect-row">
         <span>
           ${a.name}
         </span>
-        <span class="ft-invoke-badge">
-          ${a.invokes}
-        </span>
+        <div class="ft-invoke-container">
+          <span class="ft-invoke-badge">
+            ${a.invokes}
+          </span>
+          <span class="ft-gm-invoke-badge">
+            ${a.gm_invokes ?? 0}
+          </span>
+        </div>
       </div>
-    `).join("")} `  
+    `).join("")} `
+    return html  
   }
 
   static _renderCountdownSection(countdowns) {

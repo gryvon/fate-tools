@@ -30,7 +30,6 @@ export class AspectManager {
         "invokes"
       ) ?? {}
     );
-
   }
 
   static async saveInvokeMap(map) {
@@ -40,16 +39,16 @@ export class AspectManager {
       "invokes",
       map
     );
-
   }
 
-  static async setInvokes(aspect, count) {
+  static async setInvokes(aspect, count, gm_count = 0) {
 
     if (aspect.sourceType === "scene") {
       const aspects = canvas.scene.getFlag("fate-core-official", "situation_aspects") ?? [];
       const target = aspects.find(a => a.name === aspect.name);
       if (!target) return;
       target.free_invokes = String(Math.max(0, count));
+      target.gm_invokes = String(Math.max(0, gm_count));
       await canvas.scene.setFlag("fate-core-official", "situation_aspects", aspects);
     }
     else if (aspect.sourceType === "game") {
@@ -57,12 +56,16 @@ export class AspectManager {
       const target = aspects.find(a => a.name === aspect.name);
       if (!target) return;
       target.free_invokes = String(Math.max(0, count));
+      target.gm_invokes = String(Math.max(0, gm_count));
       await game.settings.set("fate-core-official", "gameAspects", aspects);
     }
     else {
       const map = await this.getInvokeMap();
       const key = this.getAspectKey(aspect);
-      map[key] = Math.max(0, count);
+      map[key] = {
+        invokes: Math.max(0, count),
+        gm_invokes: Math.max(0, gm_count)
+      };
       await this.saveInvokeMap(map);
     }
     Hooks.callAll("fateToolsInvokesChanged");
@@ -82,76 +85,46 @@ export class AspectManager {
         "situation_aspects"
       ) ?? []
     ).map(a => ({
-
       type: "aspect",
-
       name: a.name,
-
-      invokes:
-        Number(a.free_invokes ?? 0),
-
+      invokes: Number(a.free_invokes ?? 0),
+      gm_invokes: Number(a.gm_invokes ?? 0),
       sourceType: "scene",
-
-      sourceId:
-        canvas.scene.id,
-
-      sourceName:
-        "Scene"
-
+      sourceId: canvas.scene.id,
+      sourceName: "Scene"
     }));
 
   }
 
   static async getZoneAspects() {
 
-    const zones =
-      await game.fateZones
-        .ZoneManager
-        .getZones();
-
+    const zones = await game.fateZones.ZoneManager.getZones();
     const aspects = [];
 
     for (const zone of zones) {
-
-      if (!zone.enableAspects)
-        continue;
+      if (!zone.enableAspects) { continue; }
 
       for (const aspect of zone.aspects) {
-
         const aspectData = {
-
-          id:
-            foundry.utils.randomID(),
-
+          id: foundry.utils.randomID(),
           name: aspect,
-
           type: "aspect",
-
           sourceType: "zone",
-
           sourceId: zone.id,
-
           sourceName: zone.name,
-
           visible: true
-
         };
 
-        aspectData.invokes =
-          await this.getInvokes(
-            aspectData
-          );
+        const invokeData = await this.getInvokes(aspectData);
 
-        aspects.push(
-          aspectData
-        );
+        aspectData.invokes = invokeData.invokes;
+        aspectData.gm_invokes = invokeData.gm_invokes;
 
+        aspects.push(aspectData);
       }
-
     }
 
     return aspects;
-
   }
 
   static async getActorAspects() {
@@ -159,64 +132,38 @@ export class AspectManager {
     const aspects = [];
 
     for (const token of canvas.scene.tokens.contents) {
-
       const actor = token.actor;
-
       if (!actor) continue;
-
       if (!game.user.isGM) {
-
-        const canObserve =
-          actor.testUserPermission(
-            game.user,
-            CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER
-          );
-
-        if (!canObserve) continue;
-
+        const canObserve = actor.testUserPermission(game.user, CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER);
+        if (!canObserve) { continue; }
       }
 
-      const actorAspects =
-        actor.system?.aspects ?? {};
+      const actorAspects = actor.system?.aspects ?? {};
 
       for (const aspect of Object.values(actorAspects)) {
-
-        if (!aspect.value?.trim())
-          continue;
+        if (!aspect.value?.trim()) { continue; }
 
         const aspectData = {
-
-          id:
-            foundry.utils.randomID(),
-
+          id: foundry.utils.randomID(),
           name: aspect.value,
-
           type: "aspect",
-
           sourceType: "actor",
 
           // TOKEN identity
           sourceId: token.id,
-
           sourceName: token.actor.name,
-
           category: aspect.name,
-
           visible: true
-
         };
 
-        aspectData.invokes =
-          await this.getInvokes(
-            aspectData
-          );
+        const invokeData = await this.getInvokes(aspectData);
 
-        aspects.push(
-          aspectData
-        );
+        aspectData.invokes = invokeData.invokes;
+        aspectData.gm_invokes = invokeData.gm_invokes;
 
+        aspects.push(aspectData);
       }
-
     }
 
     return aspects;
@@ -228,105 +175,61 @@ export class AspectManager {
     const consequences = [];
 
     for (const token of canvas.scene.tokens.contents) {
-
       const actor = token.actor;
+      if (!actor) { continue; }
 
-      if (!actor) continue;
-
-      const tracks =
-        actor.system?.tracks ?? {};
+      const tracks = actor.system?.tracks ?? {};
 
       for (const track of Object.values(tracks)) {
-
-        if (
-          !track.aspect ||
-          typeof track.aspect !== "object"
-        ) continue;
-
-        const name =
-          track.aspect.name?.trim();
-
+        if (!track.aspect || typeof track.aspect !== "object") { continue; }
+        const name = track.aspect.name?.trim();
         if (!name) continue;
-
         const consequenceData = {
-
-          id:
-            foundry.utils.randomID(),
-
+          id: foundry.utils.randomID(),
           name,
-
           type: "consequence",
-
           sourceType: "consequence",
-
           // TOKEN identity
           sourceId: token.id,
-
           sourceName: token.actor.name,
-
           severity: track.name,
-
           visible: true
-
         };
 
-        consequenceData.invokes =
-          await this.getInvokes(
-            consequenceData
-          );
+        const invokeData = await this.getInvokes(consequenceData);
 
-        consequences.push(
-          consequenceData
-        );
+        consequenceData.invokes = invokeData.invokes;
+        consequenceData.gm_invokes = invokeData.gm_invokes;
 
+        consequences.push(consequenceData);
       }
-
     }
 
     return consequences;
-
   }
 
   static getGameAspects() {
 
     return (
-      game.settings.get(
-        "fate-core-official",
-        "gameAspects"
-      ) ?? []
-    ).map(a => ({
-
+      game.settings.get("fate-core-official", "gameAspects") ?? []).map(a => ({
       name: a.name,
-
-      invokes:
-        Number(a.free_invokes ?? 0),
-
+      invokes: Number(a.free_invokes ?? 0),
+      gm_invokes: Number(a.gm_invokes ?? 0),
       sourceType: "game",
-
       sourceId: "game",
-
       sourceName: "Game"
-
     }));
-
   }
 
   static async getSceneAspects() {
 
     return [
-
       ...(await this.getZoneAspects()),
-
       ...(await this.getActorAspects()),
-
       ...(await this.getActorConsequences()),
-
       ...(await this.getSituationAspects()),
-
       ...(await this.getGameAspects())
-
     ];
-
   }
 
   static async invoke(aspect) {
