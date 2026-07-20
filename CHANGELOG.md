@@ -1,14 +1,21 @@
 # Changelog
 
+## v0.7.9
+
+### Fixed
+ - Fixed bug with chat card roll total.
+
 ## v0.7.8
 
 ### Improved
  - Added "hover" effect to aspect rows to improve readability.
  - Greatly improved aesthetics of the Scene HUD.
- - Fixed bug that was turning Fate Utilities' Situation Tab Green.
  - Removed + & - free invoke buttons from Active Aspects for non-GMs.
  - Converted "New Game/Scene Aspect" window to V2 Application.
  - Can now add custom modifiers to the chat card.
+
+### Fixed
+ - Fixed bug that was turning Fate Utilities' Situation Tab Green.
 
 ## v0.7.5
 

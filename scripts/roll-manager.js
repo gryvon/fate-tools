@@ -343,6 +343,8 @@ static _renderRerolls(invokes) {
 
     let total = last_dice.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 
+    total += rollData.rank;
+
     if (invokes?.length > 0) {
       for (const invoke of invokes) {
 
