@@ -4,6 +4,7 @@
 
 ### Fixed
  - Fixed bug with chat card roll total.
+ - Token HUD now matches stress boxes when linked skill increases the track length.
 
 ## v0.7.8
 

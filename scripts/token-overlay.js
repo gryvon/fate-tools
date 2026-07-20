@@ -191,7 +191,7 @@ export class TokenOverlay extends PIXI.Container {
 
     for (
       let i = 0;
-      i < track.boxes;
+      i < track.box_values.length;
       i++
     ) {
 
