@@ -55,6 +55,10 @@
   border-radius: 8px;
 }
 
+span.ft-scene-title {
+    padding-right: 20px;
+}
+
 .ft-zone-header {
   padding: 8px;
   font-size: 1.2em;
