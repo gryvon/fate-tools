@@ -171,8 +171,8 @@ export class SceneAspectHUD {
     return `
       <div class="ft-hud-section">
         <div class="ft-scene-hud-header">
-          ${title}
-          ${this._renderNewAspectButton(type)}
+          <span class="ft-scene-title">${title}</span>
+          <span>${this._renderNewAspectButton(type)}</span>
         </div>
         ${this._renderAspects(aspects)}
       </div>
@@ -187,7 +187,7 @@ export class SceneAspectHUD {
   static _renderAspects(aspects) {
     const html = `${aspects.map(a => `
       <div class="ft-scene-aspect-row">
-        <span>
+        <span class="ft-aspect-title">
           ${a.name}
         </span>
         <div class="ft-invoke-container">
