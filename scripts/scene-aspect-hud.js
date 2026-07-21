@@ -1,3 +1,57 @@
+export class NewCountdownDialog extends foundry.applications.api.ApplicationV2
+{
+  constructor() {
+    super();
+  }
+
+  static DEFAULT_OPTIONS = {
+    id: "fate-tools-new-countdown-dialog",
+    tag: "section",
+    window: {
+      title: "New Countdown"
+    },
+    position: {
+      width: 350,
+      height: "auto",
+      //top: 100,
+      //left: 100
+    }
+  };
+
+  async _renderHTML() {
+    return `
+      <div class="ft-new-countdown">
+        <label>
+          Countdown Name
+        </label>
+        <input type="text" name="countdown-name">
+        <label>
+          Countdown Boxes
+        </label>
+        <input type="number" value="3" name="countdown-boxes">
+        <div class="ft-new-countdown-buttons">
+          <button type="button" class="ft-create-countdown">
+            Create
+          </button>
+        </div>
+      </div>
+    `
+  }
+
+  async _replaceHTML(result, element) {
+    element.innerHTML = result;
+
+    element.querySelector(".ft-create-countdown")?.addEventListener("click", async () => {
+      const name = element.querySelector('[name="countdown-name"]')?.value?.trim();
+      const boxes = Number(element.querySelector('[name="countdown-boxes"]')?.value);
+
+      if (!name) { return; }
+      await SceneAspectHUD.create_new_countdown(name, boxes);
+      this.close();
+    });
+  }
+}
+
 export class NewAspectDialog extends foundry.applications.api.ApplicationV2
 {
 
@@ -10,7 +64,7 @@ export class NewAspectDialog extends foundry.applications.api.ApplicationV2
   }
 
   static DEFAULT_OPTIONS = {
-    id: "fate-tools-new-aspect",
+    id: "fate-tools-new-aspect-dialog",
     tag: "section",
     window: {
       title: `New Aspect`
@@ -76,72 +130,41 @@ export class SceneAspectHUD {
 
     `;
 
-div.querySelectorAll(".fate-tools-countdown-box").forEach(box => {
-
-  box.addEventListener(
-    "click",
-    async event => {
-
-      const id =
-        event.currentTarget.dataset.id;
-
-      const index =
-        Number(
-          event.currentTarget.dataset.index
-        );
-
-      const countdowns =
-        foundry.utils.deepClone(
-          game.settings.get(
-            "fate-core-official",
-            "countdowns"
-          )
-        );
-
-      const countdown =
-        countdowns[id];
-
-      if (
-        !countdown ||
-        !Array.isArray(
-          countdown.boxes
-        )
-      ) {
-        console.error(
-          "Invalid countdown",
-          { id, countdown }
-        );
-        return;
-      }
-
-      countdown.boxes[index] =
-        !countdown.boxes[index];
-
-      await game.settings.set(
-        "fate-core-official",
-        "countdowns",
-        countdowns
+    div.querySelectorAll(".fate-tools-countdown-box").forEach(box => {
+      box.addEventListener("click", async event => {
+          const id = event.currentTarget.dataset.id;
+          const index = Number(event.currentTarget.dataset.index);
+          const countdowns = foundry.utils.deepClone(game.settings.get("fate-core-official", "countdowns"));
+          const countdown = countdowns[id];
+          if (!countdown || !Array.isArray(countdown.boxes)) {
+            console.error("Invalid countdown", { id, countdown });
+            return;
+          }
+          countdown.boxes[index] = !countdown.boxes[index];
+          await game.settings.set("fate-core-official", "countdowns", countdowns);
+          Hooks.callAll("fateToolsInvokesChanged");
+        }
       );
-
-      Hooks.callAll(
-        "fateToolsInvokesChanged"
-      );
-
-    }
-  );
-
-});
+    });
 
     document.body.appendChild(div);
-  
-    const newGameAspectButton = document.querySelector("#fate-tools-new-game-aspect");
-    newGameAspectButton.addEventListener("click", async event => { this.newAspect("game"); });
-    const newSceneAspectButton = document.querySelector("#fate-tools-new-scene-aspect");
-    newSceneAspectButton.addEventListener("click", async event => { this.newAspect("scene"); });
+
+    if (game.user.isGM) {
+      const newGameAspectButton = document.querySelector("#fate-tools-new-game-aspect");
+      newGameAspectButton?.addEventListener("click", async event => { this.newAspect("game"); });
+      const newSceneAspectButton = document.querySelector("#fate-tools-new-scene-aspect");
+      newSceneAspectButton?.addEventListener("click", async event => { this.newAspect("scene"); });    
+      const newCountdownButton = div.querySelector("#fate-tools-new-countdown");
+      newCountdownButton?.addEventListener("click", () => this.newCountdown());
+    }
     const players = document.querySelector("#players");
     const bottomOffset = players?players.offsetHeight + 10 : 10;
     div.style.bottom = `${bottomOffset}px`;
     this.element = div;
+  }
+
+  static async newCountdown() {
+    new NewCountdownDialog().render(true);
   }
 
   static _renderAspectSection(title, type, aspects) {
@@ -185,10 +208,21 @@ div.querySelectorAll(".fate-tools-countdown-box").forEach(box => {
       <div class="ft-hud-section">
         <div class="ft-scene-hud-header">
           Countdowns
+          ${ this._renderNewCountdownButton() }
         </div>
       ${ this._drawCountdownBoxes(countdowns) }
       </div>
     `
+  }
+
+  static _renderNewCountdownButton() {
+    if (!game.user.isGM) return "";
+
+    return `
+      <button id="fate-tools-new-countdown" class="fate-tools-new-button">
+        + New
+      </button>
+    `;
   }
 
   static destroy() {
@@ -234,28 +268,6 @@ div.querySelectorAll(".fate-tools-countdown-box").forEach(box => {
 
     new NewAspectDialog(aspectType).render(true);
 
-    /*new Dialog({
-      title: `New ${type_title} Aspect`,
-      content: `
-        <input id="new-aspect-name" type="text">
-      `,
-      buttons: {
-        create: {
-          label: "Create",
-          callback: async html => { 
-          
-            const name = html.find("#new-aspect-name").val().trim();
-
-          await this.create_new_aspect(aspect_type, name) }
-        },
-        close: {
-          label: "Close"
-        },
-        
-      },
-      default: "create",
-      create: () => { }
-    }).render(true);*/
   }
 
   static async create_new_aspect(aspect_type, name, invokes=0) {
@@ -285,4 +297,27 @@ div.querySelectorAll(".fate-tools-countdown-box").forEach(box => {
     Hooks.callAll("fateToolsInvokesChanged");
 
   }
+
+static async create_new_countdown(name, boxes) {
+
+  const countdowns = foundry.utils.deepClone(
+    game.settings.get("fate-core-official", "countdowns") ?? {}
+  );
+
+  const key = btoa(`<p>${name}</p>`);
+
+  countdowns[key] = {
+    name: `<p>${name}</p>`,
+    description: "",
+    boxes: Array(Number(boxes)).fill(false),
+    visible: "visible"
+  };
+
+  await game.settings.set(
+    "fate-core-official",
+    "countdowns",
+    countdowns
+  );
+
+}
 }
