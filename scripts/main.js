@@ -1,8 +1,9 @@
 import { ZoneDataModel } from "./zone-model.js";
-import { ZoneDocument } from "./zone-document.js";
-import { ZonePlaceable } from "./zone-placeable.js";
+//import { ZoneDocument } from "./zone-document.js";
+//import { ZonePlaceable } from "./zone-placeable.js";
+import { ZoneCardRenderer } from "./zone-placeable-v2.js";
 import { ZoneManager } from "./zone-manager.js";
-import { ZoneCanvas } from "./zone-canvas.js";
+//import { ZoneCanvas } from "./zone-canvas.js";
 import { ZoneConfig } from "./zone-config.js";
 import { AspectManager } from "./aspect-manager.js";
 import { ActiveAspects } from "./active-aspects.js";
@@ -24,11 +25,12 @@ Hooks.once("init", () => {
   };
 
   game.fateZones = {
-    ZonePlaceable,
+//    ZonePlaceable,
     ZoneManager,
-    ZoneCanvas,
+//    ZoneCanvas,
     ZoneConfig,
-    SceneAspectHUD
+    SceneAspectHUD,
+    ZoneCardRenderer
   };
 
   game.fateZones.activeTool = null;
@@ -50,7 +52,7 @@ Hooks.on(
   "canvasReady",
   async () => {
 
-    await ZoneCanvas.drawAll();
+    await ZoneManager.renderAll();
     await game.fateZones.SceneAspectHUD.render();
 
   }
@@ -95,74 +97,49 @@ Hooks.on(
   }
 );
 
-Hooks.on(
-  "canvasReady",
-  () => {
+Hooks.once("ready", () => {
+  canvas.stage.on("pointerdown", async event => {
+    if (!game.user.isGM) return;
+    if (game.fateZones.activeTool !== "createZone") return;
 
-    canvas.stage.on(
-      "pointerdown",
-      async (event) => {
+    const pos = event.data.getLocalPosition(canvas.stage);
 
-        if (!game.user.isGM)
-          return;
-
-        if (
-          game.fateZones.activeTool !==
-          "createZone"
-        ) return;
-
-        const pos =
-          event.data.getLocalPosition(
-            canvas.stage
-          );
-
-        await game.fateZones
-          .ZoneManager
-          .createDefaultZone(
-            pos.x,
-            pos.y
-          );
-
-        game.fateZones.activeTool = null;
-
-        // Switch back to Select
-        ui.controls.control.tools.createZone.active = false;
-        ui.controls.control.tools.select.active = true;
-
-        ui.controls.render();
-
-      }
+    await game.fateZones.ZoneManager.createDefaultZone(
+      pos.x,
+      pos.y
     );
-  }
-);
+
+    game.fateZones.activeTool = null;
+  });
+});
 
 Hooks.on("updateScene", () => {
-  ZoneCanvas.drawAll();
-  ActiveAspects.refresh()
+  ZoneManager.renderAll();
+  ActiveAspects.refresh();
   game.fateZones.SceneAspectHUD.render();
 });
 
 Hooks.on("fateToolsInvokesChanged", () => {
-  ZoneCanvas.drawAll();
-  ActiveAspects.refresh()
+  ZoneManager.renderAll();
+  ActiveAspects.refresh();
   game.fateZones.SceneAspectHUD.render();
   const FU = foundry.applications.instances.get("FateUtilities");
   if (FU) { FU.render(false); }
 });
 
 Hooks.on("renderFateUtilities", () => {
-  ZoneCanvas.drawAll();
-  ActiveAspects.refresh()
+  ZoneManager.renderAll();
+  ActiveAspects.refresh();
   game.fateZones.SceneAspectHUD.render();
 });
 
 Hooks.on("updateSetting", () => {
-  ZoneCanvas.drawAll();
-  ActiveAspects.refresh()
+  ZoneManager.renderAll();
+  ActiveAspects.refresh();
   game.fateZones.SceneAspectHUD.render();
 });
 
-export class FateToolsLayer extends InteractionLayer {
+export class FateToolsLayer extends foundry.canvas.layers.InteractionLayer {
 
   static get layerOptions() {
     return foundry.utils.mergeObject(

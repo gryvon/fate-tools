@@ -112,7 +112,7 @@ export class ZoneConfig extends FormApplication {
       }
     );
 
-    this.zone.draw();
+    this.zone.render();
   }
 
   async _onDelete(event) {
@@ -137,9 +137,7 @@ export class ZoneConfig extends FormApplication {
         this.zone.zoneData.id
       );
 
-    await game.fateZones
-      .ZoneCanvas
-      .drawAll();
+    await game.fateZones.ZoneManager.renderAll();
 
     this.close();
 

@@ -1,25 +1,186 @@
-.zone-stress {
-  pointer-events: all;
+.ft-zone-overlay {
+  position: absolute;
+  opacity: 0.6;
+  overflow: clip;
+  min-width: 230px;
+  min-height: 200px;
+  box-sizing: border-box;
 }
 
-.zone-header {
+.ft-zone-overlay:hover {
+  opacity: 0.9;
+}
+
+.ft-zone-card {
+  border: 2px solid var(--zone-color);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.85);
+  position: relative;
+  inset: 0;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  box-shadow:
+    0 0 8px var(--zone-color),
+    0 0 16px var(--zone-color);
+}
+
+
+#fate-tools-scene-hud {
+  position: fixed;
+  left: 10px;
+
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid #666;
+  border-radius: 6px;
+  padding: 8px;
+
+  z-index: 100;
+}
+
+.ft-new-aspect,
+.ft-new-countdown {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  padding: 10px;
+
+  background: rgba(20, 20, 20, 0.95);
+
+  color: var(--color-text-primary);
+
+  border: 1px solid #6a6a6a;
+  border-radius: 8px;
+}
+
+.ft-zone-header {
+  padding: 8px;
+  font-size: 1.2em;
   font-weight: bold;
+  border-bottom: 1px solid var(--zone-color);
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ft-zone-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  color: var(--zone-color);
+}
+
+.ft-zone-stress-track {
+  padding: 8px;
+  text-align: center;
+  border-bottom: 1px solid var(--zone-color);
+}
+
+.ft-zone-section {
+  border-bottom: 1px solid var(--zone-color);
+}
+
+.ft-zone-stress-box {
+  pointer-events: auto;
+}
+
+.ft-zone-section-header {
+  font-weight: bold;
+  padding: 4px 8px;
+  border-top: 1px solid var(--zone-color);
+  border-bottom: 1px solid var(--zone-color);
+  background: rgba(255,255,255,0.05);
+}
+
+.ft-zone-description {
+  padding: 8px 12px;
+  font-size: 0.85em;
+  font-style: italic;
+  color: #b0b0b0;
+  line-height: 1.4;
+  max-height: 100px;
+  overflow-y: clip;
+  /* pointer-events: auto; */
+}
+
+.ft-zone-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px;
+}
+
+.ft-zones-invokes-container {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.ft-zone-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+}
+
+.ft-zone-player-invoke-badge {
+  min-width: 20px;
+  text-align: center;
+  border-radius: 10px;
+  padding: 2px 6px;
+  background: #2f7d32;
   color: white;
+  font-weight: bold;
+  font-size: 0.8em;
 }
 
-.zone-stress-box {
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-
-  border: 2px solid white;
-
-  margin-right: 4px;
+.ft-zone-gm-invoke-badge {
+  min-width: 20px;
+  text-align: center;
+  border-radius: 10px;
+  padding: 2px 6px;
+  background: #a53939;
+  color: white;
+  font-weight: bold;
+  font-size: 0.8em;
 }
 
-.zone-stress-box.filled {
-  background: white;
+.ft-zone-resizer {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  pointer-events: auto;
 }
+
+.ft-zone-resizer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      135deg,
+      transparent 0%,
+      transparent 55%,
+      rgba(255,255,255,0.7) 55%,
+      rgba(255,255,255,0.7) 65%,
+      transparent 65%
+    ),
+    linear-gradient(
+      135deg,
+      transparent 20%,
+      transparent 70%,
+      rgba(255,255,255,0.5) 70%,
+      rgba(255,255,255,0.5) 80%,
+      transparent 80%
+    );
+}
+`
+
 
 #fate-tools-scene-hud {
 
@@ -357,6 +518,25 @@
 
 .ft-roll-invoke {
   margin-top: 10px;
+}
+
+.ft-roll-invoke {
+  margin-top: 10px;
+}
+
+.ft-roll-invoke-button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background: #d4a72c;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1.05em;
+}
+
+.ft-roll-invoke-button:hover {
+  filter: brightness(1.1);
 }
 
 .ft-reroll-label {
