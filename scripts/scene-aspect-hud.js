@@ -274,7 +274,7 @@ export class SceneAspectHUD {
     if (!name) { return; }
 
     if (aspect_type === "game") {
-      const aspects = await game.settings.get("fate-core-official", "gameAspects");
+      const aspects = await game.settings.get("fate-core-official", "gameAspects") ?? [];
       aspects.push({
         name: name,
         free_invokes: invokes,
@@ -283,7 +283,7 @@ export class SceneAspectHUD {
       await game.settings.set("fate-core-official", "gameAspects", aspects);
     }
     else if (aspect_type === "scene") {
-      const aspects = await canvas.scene.getFlag("fate-core-official", "situation_aspects");
+      const aspects = await canvas.scene.getFlag("fate-core-official", "situation_aspects") ?? [];
       aspects.push({
         name: name,
         free_invokes: invokes
