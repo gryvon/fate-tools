@@ -2,7 +2,7 @@
   "id": "fate-tools",
   "title": "Tools of Fate",
   "description": "QoL Improvements for Fate Core Official!",
-  "version": "0.7.11",
+  "version": "0.8.0",
   "compatibility": {
     "minimum": "14",
     "verified": "14"
@@ -37,6 +37,6 @@
       "path": "lang/en.json"
     }
   ],
-  "download": "https://github.com/gryvon/fate-tools/releases/download/v0.7.8/fate-tools-v0.7.8.zip",
+  "download": "https://github.com/gryvon/fate-tools/releases/download/v0.8.0/fate-tools-v0.8.0.zip",
   "manifest": "https://raw.githubusercontent.com/gryvon/fate-tools/refs/heads/main/module.json"
 }

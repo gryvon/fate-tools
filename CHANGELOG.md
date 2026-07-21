@@ -1,9 +1,13 @@
 # Changelog
 
-## v0.7.12
+## v0.8.0
 
 ### Added
  - Added GM Free Invoke System.
+ - New Countdown Timer in Scene HUD.
+
+### Improvements
+ - Fixed and added some CSS for some added polish.
 
 ### Fixed
  - Fixed bug with chat card roll total.
