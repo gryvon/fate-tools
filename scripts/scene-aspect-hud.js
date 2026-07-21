@@ -298,26 +298,28 @@ export class SceneAspectHUD {
 
   }
 
-static async create_new_countdown(name, boxes) {
+  static async create_new_countdown(name, boxes) {
 
-  const countdowns = foundry.utils.deepClone(
-    game.settings.get("fate-core-official", "countdowns") ?? {}
-  );
+    const countdowns = foundry.utils.deepClone(
+      game.settings.get("fate-core-official", "countdowns") ?? {}
+    );
 
-  const key = btoa(`<p>${name}</p>`);
+    const key = btoa(`<p>${name}</p>`);
 
-  countdowns[key] = {
-    name: `<p>${name}</p>`,
-    description: "",
-    boxes: Array(Number(boxes)).fill(false),
-    visible: "visible"
-  };
+    countdowns[key] = {
+      name: `<p>${name}</p>`,
+      description: "",
+      boxes: Array(Number(boxes)).fill(false),
+      visible: "visible"
+    };
 
-  await game.settings.set(
-    "fate-core-official",
-    "countdowns",
-    countdowns
-  );
+    await game.settings.set(
+      "fate-core-official",
+      "countdowns",
+      countdowns
+    );
 
-}
+    Hooks.callAll("fateToolsInvokesChanged");
+
+  }
 }
