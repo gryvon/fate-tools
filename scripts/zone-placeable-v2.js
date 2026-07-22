@@ -124,11 +124,9 @@ export class ZoneCardRenderer {
   }
 
   _renderDescription() {
-    return "";
-    // For future development.
-    const description = this.zoneData.description ?? `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin luctus congue sapien et dictum. In dictum maximus justo, eget lobortis eros lacinia ut. Nam at diam id metus egestas molestie et in orci. Nullam pharetra metus orci, vel cursus dolor rhoncus non. Maecenas vel blandit leo. Aenean aliquam placerat magna vitae laoreet. Sed turpis nunc, convallis vehicula dui vitae, hendrerit scelerisque odio. Quisque consequat maximus augue, quis bibendum tortor dapibus eu. Nunc enim eros, accumsan sit amet est tempor, tempus dignissim dolor.
+    const description = this.zoneData.description ?? "";
 
-Pellentesque egestas facilisis massa a dictum. Donec ut scelerisque nisi, vel ullamcorper erat. Mauris rutrum, nibh et porttitor volutpat, elit urna cursus purus, vel iaculis augue nisl at libero. Integer nec tellus et augue scelerisque faucibus sed et ex. Quisque ac interdum urna, at semper urna. Nulla accumsan lorem at neque ultricies faucibus. Ut ac nisi condimentum, efficitur nibh in, placerat metus.`;
+    if (description === "") {return ""; }
 
     return `
       <div class="ft-zone-description">

@@ -1,93 +1,112 @@
-<form>
+<form class="ft-zoneconfig">
 
-  <div class="form-group">
-    <label>Name</label>
+  <section class="ft-zoneconfig-section">
 
-    <input
-      type="text"
-      name="name"
-      value="{{zone.name}}"
-    />
-  </div>
+    <div class="ft-zoneconfig-header">
+      <h2>Main</h2>
+    </div>
 
-<div class="form-group">
-  <label>Zone Color</label>
+    <div class="ft-zoneconfig-section-content">
 
-  <input
-    type="color"
-    name="color"
-    value="{{zone.color}}"
-  />
-</div>
+      <div class="ft-zoneconfig-row">
 
-  <div class="form-group">
-    <label>Enable Stress</label>
+        <div class="ft-zoneconfig-field-inline">
+          <label>Name</label>
+          <input type="text" name="name" value="{{zone.name}}">
+        </div>
 
-    <input
-      type="checkbox"
-      name="enableStress"
-      {{checked zone.enableStress}}
-    />
-  </div>
+        <div class="ft-zoneconfig-field-inline ft-zoneconfig-color">
+          <label>Zone Color</label>
+          <input type="color" name="color" value="{{zone.color}}">
+        </div>
 
-  <div class="form-group">
-    <label>Stress Boxes</label>
+      </div>
 
-    <input
-      type="number"
-      name="stressBoxes"
-      value="{{zone.stressBoxes}}"
-      min="1"
-      max="20"
-    />
-  </div>
+      <div class="ft-zoneconfig-field">
+        <label>Description</label>
+        <textarea name="description" rows="3">{{zone.description}}</textarea>
+      </div>
 
-  <div class="form-group">
-    <label>Enable Aspects</label>
+    </div>
 
-    <input
-      type="checkbox"
-      name="enableAspects"
-      {{checked zone.enableAspects}}
-    />
-  </div>
+  </section>
 
-  <div class="form-group">
-    <label>Enable Consequences</label>
+  <section class="ft-zoneconfig-section">
 
-    <input
-      type="checkbox"
-      name="enableConsequences"
-      {{checked zone.enableConsequences}}
-    />
-  </div>
+    <div class="ft-zoneconfig-header">
+      <h2>Zone Stress</h2>
 
-  <hr>
+      <span class="ft-zoneconfig-header-toggle">
+        Enabled
+        <input type="checkbox" name="enableStress" data-target="ft-zoneconfig-stress-section" {{checked zone.enableStress}}>
+      </span>
+    </div>
 
-  <h3>Aspects</h3>
+    <div class="ft-zoneconfig-section-content" id="ft-zoneconfig-stress-section">
 
-  
-  <textarea name="aspects" rows="4">{{aspectsText}}</textarea>
+      <div class="ft-zoneconfig-field-inline">
+        <label>Stress Boxes</label>
+        <input type="number" name="stressBoxes" value="{{zone.stressBoxes}}" min="1" max="20" style="width: 50px;">
+      </div>
 
+    </div>
 
-  <hr>
+  </section>
 
-  <h3>Consequences</h3>
+  <section class="ft-zoneconfig-section">
 
-  <textarea name="consequences" rows="4">{{consequencesText}}</textarea>
+    <div class="ft-zoneconfig-header">
+      <h2>Aspects</h2>
 
+      <span class="ft-zoneconfig-header-toggle">
+        Enabled
+        
+      <input type="checkbox" name="enableAspects" data-target="ft-zoneconfig-aspects-section" {{checked zone.enableAspects}}>
+ 
+      </span>
+    </div>
 
-  <footer class="sheet-footer">
+    <div class="ft-zoneconfig-section-content" id="ft-zoneconfig-aspects-section">
+
+      <div class="ft-zoneconfig-field">
+        <label>Aspects</label>
+        <textarea name="aspects" rows="6">{{aspectsText}}</textarea>
+      </div>
+
+    </div>
+
+  </section>
+
+  <section class="ft-zoneconfig-section">
+
+    <div class="ft-zoneconfig-header">
+      <h2>Consequences</h2>
+
+      <span class="ft-zoneconfig-header-toggle">
+        Enabled
+        <input type="checkbox" name="enableConsequences" data-target="ft-zoneconfig-consequences-section" {{checked zone.enableConsequences}}>
+      </span>
+    </div>
+
+    <div class="ft-zoneconfig-section-content" id="ft-zoneconfig-consequences-section">
+
+      <div class="ft-zoneconfig-field">
+        <label>Consequences</label>
+        <textarea name="consequences" rows="6">{{consequencesText}}</textarea>
+      </div>
+
+    </div>
+
+  </section>
+
+  <footer class="ft-zoneconfig-footer">
 
     <button type="submit">
-      Save
+      <i class="fas fa-save"></i> Save
     </button>
 
-    <button
-      type="button"
-      class="delete-zone"
-    >
-      Delete Zone
+    <button type="button" class="ft-zoneconfig-delete">
+      <i class="fas fa-trash"></i> Delete Zone
     </button>
 
   </footer>

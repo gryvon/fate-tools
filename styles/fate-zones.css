@@ -184,7 +184,37 @@ span.ft-aspect-title {
     );
 }
 `
+.zone-section {
+  margin-bottom: 0.75rem;
 
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+
+  overflow: hidden;
+  background: rgba(255,255,255,0.03);
+}
+
+.zone-section h2 {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+
+  font-size: 1rem;
+  font-weight: 600;
+
+  color: #f0f0f0;
+
+  background: linear-gradient(
+    to right,
+    rgba(255,255,255,0.08),
+    rgba(255,255,255,0.03)
+  );
+
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.zone-section-content {
+  padding: 0.75rem;
+}
 
 #fate-tools-scene-hud {
 
@@ -709,4 +739,114 @@ span.ft-aspect-title {
 
   /*border-radius: 3px;*/
 
+}
+
+.ft-zoneconfig {
+  padding: 0.5rem;
+}
+
+.ft-zoneconfig-section {
+  margin-bottom: 0.75rem;
+
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+
+  overflow: hidden;
+  background: rgba(255,255,255,0.03);
+}
+
+.ft-zoneconfig-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 0.5rem 0.75rem;
+
+  background: linear-gradient(
+    to right,
+    rgba(255,255,255,0.08),
+    rgba(255,255,255,0.03)
+  );
+
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.ft-zoneconfig-header h2 {
+  margin: 0;
+
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.ft-zoneconfig-field {
+  display: flex;
+  flex-direction: column !important;
+  align-items: stretch;
+  gap: 0.25rem;
+  padding-top: 5px;
+}
+
+.ft-zoneconfig-field label {
+  display: block;
+  width: 100%;
+  padding-left: 7px;
+}
+
+.ft-zoneconfig-field textarea {
+  display: block;
+  width: auto;
+  resize: none;
+  margin: 7px;
+}
+
+.ft-zoneconfig-field-inline {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 7px;
+}
+
+.ft-zoneconfig-field-inline label {
+  margin: 0;
+  width: 25%;
+}
+
+.ft-zoneconfig-field-inline input {
+  margin: 0;
+  width: 75%;
+}
+
+.ft-zoneconfig-footer {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.ft-zoneconfig-footer button {
+  flex: 1;
+
+  height: 36px;
+
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+
+  background: rgba(255,255,255,0.08);
+
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.ft-zoneconfig-footer button:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.25);
+}
+
+.ft-zoneconfig-delete {
+  color: #d86161;
+}
+
+.ft-zoneconfig-delete:hover {
+  background: rgba(216,97,97,0.15);
+  border-color: #d86161;
 }
