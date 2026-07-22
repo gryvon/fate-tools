@@ -355,7 +355,6 @@ Hooks.on("createChatMessage", async (message) => {
 
   const rollData = game.fateTools.RollManager.extractRollData(message);
   await message.setFlag("fate-tools", "rollData", rollData);
-  console.log("CREATE", message.id)
 });
 
 Hooks.on("renderChatMessageHTML", (message, html) => {

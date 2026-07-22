@@ -12,10 +12,7 @@ export class ZoneCardRenderer {
     this._onDragEnd = this._onDragEnd.bind(this);
     this._onResizeMove = this._onResizeMove.bind(this);
     this._onResizeEnd = this._onResizeEnd.bind(this);
-
-    console.log("NEW RENDERER", this.zoneData.id);
   }
-
 
   render() {
     // this.destroy();
@@ -232,7 +229,6 @@ export class ZoneCardRenderer {
   }
 
   _onDragMove(event) {
-    //console.log("pointermove", this.zoneData.name, this.zoneData.id);
     if (!this.dragging) return;
 
     const scale = canvas.stage.scale.x;
@@ -305,7 +301,6 @@ export class ZoneCardRenderer {
     });
 
     resizer.addEventListener("pointerdown", event => {
-      console.log("pointermove", this.zoneData.name, this.zoneData.id);
       event.stopPropagation();
 
       this.resizing = true;
@@ -321,41 +316,6 @@ export class ZoneCardRenderer {
     document.addEventListener("pointermove", this._onResizeMove);
     document.addEventListener("pointerup", this._onResizeEnd);
   }  
-
-
-/*  attachListeners() {
-
-    const header = this.element.querySelector(".ft-zone-header");
-    const resizer = this.element.querySelector(".ft-zone-resizer");
-
-    this.element.querySelectorAll(".ft-zone-modify-button").forEach(box => {
-      box.addEventListener("click", this._onModifyClick.bind(this));
-    })
-
-    this.element.querySelectorAll(".ft-zone-stress-box").forEach(box => { 
-      box.addEventListener("click", this._onStressClick.bind(this)); 
-    });
-
-    header.addEventListener("pointerdown", event => {
-
-      this.dragging = true;
-
-      this.lastX = event.clientX;
-      this.lastY = event.clientY;
-
-    });
-
-    resizer.addEventListener("pointerdown", event => {
-      console.log("pointermove", this.zoneData.name, this.zoneData.id);
-      event.stopPropagation();
-
-      this.resizing = true;
-
-      this.lastX = event.clientX;
-      this.lastY = event.clientY;   
-
-    }); 
-  } */
 
   async _onStressClick(event) {
     const index = Number(event.currentTarget.dataset.index);
