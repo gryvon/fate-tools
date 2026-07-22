@@ -1,687 +1,344 @@
-export class ZonePlaceable extends PIXI.Container {
+export class ZoneCardRenderer {
 
-  constructor(data) {
-    super();
-
-    this.zoneData = data;
-
+  constructor(zoneData, options={}) {
+    this.zoneData = zoneData;
     this.dragging = false;
-    this.dragOffset = null;
-
     this.resizing = false;
-    this.resizeOffset = null;
+    this.lastX = 0;
+    this.lastY = 0;
+    this.options = options;
 
-    this.stressGraphics = [];
-
-    this.eventMode = "static";
-
-    this.interactive = true;
-    this.cursor = "move";
-
-    this._boundDragMove =
-      this._onDragMove.bind(this);
-
-    this._boundDragEnd =
-      this._onDragEnd.bind(this);
-
-    this.on(
-      "pointerdown",
-      this._onDragStart.bind(this)
-    );
-
-    this.on(
-      "rightdown",
-      this._onConfigure.bind(this)
-    );
-
-    canvas.stage.on(
-      "pointermove",
-      this._boundDragMove
-    );
-
-    canvas.stage.on(
-      "pointerup",
-      this._boundDragEnd
-    );
-
-    canvas.stage.on(
-      "pointerupoutside",
-      this._boundDragEnd
-    );
-
-    this.on(
-    "pointerover",
-    this._onHoverIn.bind(this)
-    );
-
-    this.on(
-    "pointerout",
-    this._onHoverOut.bind(this)
-    );
-
-    this.isHovered = false;
-
+    this._onDragMove = this._onDragMove.bind(this);
+    this._onDragEnd = this._onDragEnd.bind(this);
+    this._onResizeMove = this._onResizeMove.bind(this);
+    this._onResizeEnd = this._onResizeEnd.bind(this);
   }
 
-  draw() {
+  render() {
+    // this.destroy();
 
-    const scale = this._getUIScale();
-
-    this.removeChildren();
-
-    this.stressGraphics = [];
-    this.isHovered = false;
-
-    this._drawBackground();
-    this._drawTitle();
-    this._drawStress();
-    this._drawAspects();
-    this._drawConsequences();
-    this._drawResizeHandle();
-
-    return this;
-  }
-
-  _drawBackground() {
-
-    const scale = this._getUIScale();
-
-    const bg = new PIXI.Graphics();
-
-    /* bg.lineStyle(2, 0xFFFFFF, 1); */
-
-    if (!this.zoneData.color)
-      this.zoneData.color = "#FFFFFF"
-
-    this.background = bg;
-    this.background.alpha = 0.4;
-
-    bg.lineStyle(
-      2,
-      PIXI.utils.string2hex(
-        this.zoneData.color
-      ),
-      1
-    );
-
-    bg.beginFill(
-      0x000000,
-      1
-    );
-
-    const height =
-      this._getCalculatedHeight();
-
-      this.zoneData.height = height;
-
-      bg.drawRoundedRect(
-        0,
-        0,
-        this.zoneData.width,
-        height,
-        6
-      );
-
-        bg.endFill();
-
-        this.addChild(bg);
-
-        this.background = bg;
-      }
-
-  _drawTitle() {
-
-    const scale = this._getUIScale();
-
-    const titleBg =
-    new PIXI.Graphics();
-
-    titleBg.beginFill(
-    PIXI.utils.string2hex(
-    this.zoneData.color
-    ),
-    0.3
-    );
-
-    titleBg.drawRoundedRect(
-      5 * scale,
-      5 * scale,
-      this.zoneData.width - (10 * scale),
-      24 * scale,
-      4 * scale
-    );
-
-    titleBg.endFill();
-
-    this.addChild(titleBg);
-
-
-    const text = new PIXI.Text(
-      this.zoneData.name,
-      {
-        fill: this.zoneData.color,
-      
-        fontSize: Math.round(
-          18 * scale
-        ),
-
-        fontWeight: "bold"
-      }
-    );
-
-    text.x = 10 * scale;
-    text.y = 5 * scale;
-
-    this.addChild(text);
-
-    this.titleText = text;
-  }
-
-  _drawStress() {
-
-    const scale = this._getUIScale();
-
-    if (!this.zoneData.enableStress)
+    if (document.getElementById(`ft-zone-overlay-${this.zoneData.id}`)) {
+      this.refreshHTML();
       return;
+    }
+
+    const hud = document.getElementById("hud");
+    const zoneCard = document.createElement("div");
+    zoneCard.classList.add("ft-zone-overlay");
+    zoneCard.id = `ft-zone-overlay-${this.zoneData.id}`
+    zoneCard.dataset.id = this.zoneData.id
+    zoneCard.innerHTML = this.renderHTML();
+
+    const pos = this.zoneData.position ?? {
+      x: this.zoneData.x,
+      y: this.zoneData.y,
+      width: this.zoneData.width,
+      height: this.zoneData.height
+    };
+
+    zoneCard.style.left = `${pos.x ?? 100}px`;
+    zoneCard.style.top = `${pos.y ?? 100}px`;
+    zoneCard.style.width = `${pos.width ?? 500}px`;
+    zoneCard.style.height = `${pos.height ?? 500}px`;
+
+    zoneCard.style.setProperty("--zone-color", this.zoneData.color ?? "#ffffff");
+
+    this.element = zoneCard;
+    this.attachDocumentListeners();
+    this.attachElementListeners();
+    hud.appendChild(zoneCard);
+    return zoneCard;
+  }
+
+  destroy() {
+    document.removeEventListener("pointermove", this._onDragMove);
+    document.removeEventListener("pointerup", this._onDragEnd);
+    document.removeEventListener("pointermove", this._onResizeMove);
+    document.removeEventListener("pointerup", this._onResizeEnd);
+    this.element?.remove();
+    this.element = null;
+  }
+
+  renderHTML() {
+    return `
+      <div class="ft-zone-card">
+        <div class="ft-zone-header">
+          <div class="ft-zone-title">
+            <span class="ft-zone-color"><i class="fa-solid fa-star"></i></span>
+            ${this.zoneData.name}
+          </div>
+          ${this._renderModifyButton()}
+        </div>
+        ${this._renderStressTrack()}
+        ${this._renderDescription()}
+        ${this._renderAspects()}
+        ${this._renderConsequences()}
+        ${this._renderResizeHandle()}
+      </div>
+    `
+  }
+
+  refreshHTML() {
+    if (!this.element) { return this.render(); }
+    this.element.innerHTML = this.renderHTML();
+    this.attachDocumentListeners();
+  }
+
+  _renderModifyButton() {
+    if (!game.user.isGM) { return ""; }
+    return `
+      <div class="ft-zone-modify">
+        <button class="ft-zone-modify-button" data-message-id="${this.zoneData.id}">
+          <i class="fa-solid fa-screwdriver-wrench"></i>
+        </button>
+      </div>
+    `    
+  }
+
+  _renderStressTrack() {
+    if (!this.zoneData.enableStress) return "";
 
     const stress = this.zoneData.stress || [];
 
-    const boxSize = Math.round(18 * scale);
-    const spacing = Math.round(24 * scale);
-    const totalWidth = ((this.zoneData.stressBoxes - 1) * spacing) + boxSize;
-    const startX = (this.zoneData.width - totalWidth) / 2;
+    let html = `<div class="ft-zone-stress-track">`;
 
     for (let i = 0; i < this.zoneData.stressBoxes; i++) {
-
       const checked = stress[i] ?? false;
 
-      const box = new PIXI.Graphics();
-
-      box.lineStyle(2, 0xFFFFFF, 1);
-
-      if (checked) {
-        box.beginFill(0xFFFFFF, 1);
-      }
-
-      box.drawRect(
-        0,
-        0,
-        boxSize,
-        boxSize
-      );
-
-      if (checked) {
-        box.endFill();
-      }
-
-      box.x = startX + (i * spacing);
-
-      box.y = 35 * scale;
-
-      box.eventMode = "static";
-      box.cursor = "pointer";
-
-      box.hitArea =
-        new PIXI.Rectangle(
-          0,
-          0,
-          boxSize,
-          boxSize
-        );
-
-      box.on("pointertap", (event) => {
-
-        event.stopPropagation();
-
-        this._onStressClicked(i);
-
-      }); 
-
-      this.addChild(box);
-
-      this.stressGraphics.push(box);
+      html += `
+        <span class="ft-zone-stress-box" data-index="${i}">
+          ${
+            checked
+              ? '<i class="fa-solid fa-square-xmark"></i>'
+              : '<i class="fa-regular fa-square"></i>'
+          }
+        </span>
+      `;
     }
+
+    html += `</div>`;
+    return html;
   }
 
-  async _onStressClicked(index) {
+  _renderDescription() {
+    const description = this.zoneData.description ?? "";
 
-    if (!game.user.isGM) return;
+    if (description === "") {return ""; }
 
-    const stress = [
-      ...this.zoneData.stress
-    ];
+    return `
+      <div class="ft-zone-description">
+        ${description}
+      </div>
+    `
 
-    stress[index] = !stress[index];
-
-    this.zoneData.stress = stress;
-
-    await game.fateZones
-      .ZoneManager
-      .updateZone(
-        this.zoneData.id,
-        { stress }
-      );
-
-    this.draw();
   }
 
-   _onDragStart(event) {
+  _renderAspects() {
+    if (!this.zoneData.enableAspects || !this.zoneData.aspects?.length) { return ""; }
 
-    event.stopPropagation();
+    const invokeMap = canvas.scene.getFlag("fate-tools", "invokes") ?? {};
 
-    if (!game.user.isGM) return;
+    let html = `
+      <div class="ft-zone-section">
+        <div class="ft-zone-section-header">
+          Aspects
+        </div>
+    `;
+    for (const aspect of this.zoneData.aspects) {
+      const key = ["zone", this.zoneData.id, "aspect", aspect].join(":");
+      const invokeData = invokeMap[key] ?? {"invokes": 0, "gm_invokes": 0}
+      html += `
+        <div class="ft-zone-row ft-zone-aspect-row">
+          <div class="ft-zone-aspect-text">
+            ${aspect}
+          </div>
+          <div class="ft-zones-invokes-container">
+            <span class="ft-zone-player-invoke-badge">
+              ${invokeData.invokes ?? 0}
+            </span>
+            <span class="ft-zone-gm-invoke-badge">
+              ${invokeData.gm_invokes ?? 0}
+            </span>
+          </div>
+        </div>      
+      `
+    };
+    html += `</div>`;
+    return html
+  }
 
-    this.dragging = true;
+  _renderConsequences() {
+    if (!this.zoneData.enableConsequences || !this.zoneData.consequences?.length) { return ""; }
 
-    const pos = event.data.getLocalPosition(
-      canvas.stage
+    const invokeMap = canvas.scene.getFlag("fate-tools", "invokes") ?? {};
+
+    let html = `
+      <div class="ft-zone-section">
+        <div class="ft-zone-section-header">
+          Consequences
+        </div>
+    `;    
+    for (const consequence of this.zoneData.consequences) {
+      const key = ["zone", this.zoneData.id, "consequence", consequence].join(":");
+      const invokeData = invokeMap[key] ?? {"invokes": 0, "gm_invokes": 0}
+      html += `
+        <div class="ft-zone-row ft-zone-consequence-row">
+          <div class="ft-zone-consequence-text">
+            ${consequence}
+          </div>
+          <div class="ft-zones-invokes-container">
+            <span class="ft-zone-player-invoke-badge">
+              ${invokeData.invokes ?? 0}
+            </span>
+            <span class="ft-zone-gm-invoke-badge">
+              ${invokeData.gm_invokes ?? 0}
+            </span>
+          </div>
+        </div>      
+      `
+    };
+    html += `</div>`;
+    return html
+  }
+
+  _renderResizeHandle() {
+    return `<div class="ft-zone-resizer"></div>`
+  }
+
+  async savePosition() {
+    const zones = foundry.utils.deepClone(
+      canvas.scene.getFlag("fate-tools", "zones") ?? []
     );
 
-    this.dragOffset = {
-      x: pos.x - this.x,
-      y: pos.y - this.y
-    };
+    const index = zones.findIndex(z => z.id === this.zoneData.id);
 
+    if (index !== -1) {
+      zones[index].position = {
+        x: this.element.offsetLeft,
+        y: this.element.offsetTop,
+        width: this.element.offsetWidth,
+        height: this.element.offsetHeight
+      };
+    }
+
+    await canvas.scene.setFlag("fate-tools", "zones", zones);
+  }
+
+  _onModifyClick() {
+    new game.fateZones.ZoneConfig(this).render(true);
   }
 
   _onDragMove(event) {
-    if (this.resizing) {
-
-      const pos =
-        event.data.getLocalPosition(
-          canvas.stage
-        );
-
-      this.zoneData.width =
-        Math.max(
-          150,
-          pos.x - this.x
-        );
-
-      this.draw();
-
-      return;
-    }
-
     if (!this.dragging) return;
 
-    const pos =
-      event.data.getLocalPosition(
-        canvas.stage
-      );
+    const scale = canvas.stage.scale.x;
 
-    this.x =
-      pos.x -
-      this.dragOffset.x;
+    const dx = (event.clientX - this.lastX) / scale;
+    const dy = (event.clientY - this.lastY) / scale;
 
-    this.y =
-      pos.y -
-      this.dragOffset.y;
+    this.element.style.left =
+      `${this.element.offsetLeft + dx}px`;
 
+    this.element.style.top =
+      `${this.element.offsetTop + dy}px`;
+
+    this.lastX = event.clientX;
+    this.lastY = event.clientY;
   }
 
   async _onDragEnd() {
-
-    if (this.resizing) {
-
-      this.resizing = false;
-
-      await game.fateZones
-        .ZoneManager
-        .updateZone(
-          this.zoneData.id,
-          {
-            width:
-              this.zoneData.width
-          }
-        );
-
-      return;
-    }
-
     if (!this.dragging) return;
 
     this.dragging = false;
 
-    await game.fateZones
-      .ZoneManager
-      .updateZone(
-        this.zoneData.id,
-        {
-          x: this.x,
-          y: this.y
-        }
-      );
-  }
- 
-  _onConfigure(event) {
-
-    event.stopPropagation();
-
-    if (!game.user.isGM) return;
-
-    new game.fateZones.ZoneConfig(
-      this
-    ).render(true);
+    await this.savePosition();
   }
 
-  _drawAspects() {
+  _onResizeMove(event) {
+      if (!this.resizing) return;
 
-    const scale = this._getUIScale();
+      const scale = canvas.stage.scale.x;
 
-    if (
-      !this.zoneData.enableAspects ||
-      !this.zoneData.aspects?.length
-    ) return;
+      const dx =
+        (event.clientX - this.lastX) / scale;
 
-    let y = 35 * scale;
+      const dy =
+        (event.clientY - this.lastY) / scale;
 
-    if (this.zoneData.enableStress) {
-      y += 30 * scale;
-    }
+      this.element.style.width = `${this.element.offsetWidth + dx}px`;
+      this.element.style.height = `${this.element.offsetHeight + dy}px`;
 
-    const header = new PIXI.Text(
-      "★ Aspects",
-      {
-        fill: "#FFD700",
-        fontSize: Math.round(14 * this._getUIScale()),
-        fontWeight: "bold"
-      }
+      this.lastX = event.clientX;
+      this.lastY = event.clientY;    
+  }
+
+  async _onResizeEnd(event) {
+    if (this.resizing) {
+      this.resizing = false;
+      await this.savePosition();
+    }    
+  }
+
+  attachDocumentListeners() {
+    const header = this.element.querySelector(".ft-zone-header");
+    const resizer = this.element.querySelector(".ft-zone-resizer");
+
+    this.element.querySelectorAll(".ft-zone-modify-button").forEach(box => {
+      box.addEventListener("click", this._onModifyClick.bind(this));
+    })
+
+    this.element.querySelectorAll(".ft-zone-stress-box").forEach(box => { 
+      box.addEventListener("click", this._onStressClick.bind(this)); 
+    });
+
+    header.addEventListener("pointerdown", event => {
+
+      this.dragging = true;
+
+      this.lastX = event.clientX;
+      this.lastY = event.clientY;
+
+    });
+
+    resizer.addEventListener("pointerdown", event => {
+      event.stopPropagation();
+
+      this.resizing = true;
+
+      this.lastX = event.clientX;
+      this.lastY = event.clientY;   
+
+    });  }
+
+  attachElementListeners() {
+    document.addEventListener("pointermove", this._onDragMove);
+    document.addEventListener("pointerup", this._onDragEnd);
+    document.addEventListener("pointermove", this._onResizeMove);
+    document.addEventListener("pointerup", this._onResizeEnd);
+  }  
+
+  async _onStressClick(event) {
+    const index = Number(event.currentTarget.dataset.index);
+    this.zoneData.stress ??= [];
+    this.zoneData.stress[index] = !this.zoneData.stress[index];
+    await this.saveZoneData();
+    this._refreshHTML();
+  }
+
+  async saveZoneData() {
+    const zones = foundry.utils.deepClone(
+      canvas.scene.getFlag("fate-tools", "zones") ?? []
     );
 
-    header.x = 10;
-    header.y = y;
-
-    this.addChild(header);
-
-    y += 20 * scale;
-
-    const invokeMap =
-      canvas.scene.getFlag(
-        "fate-tools",
-        "invokes"
-      ) ?? {};
-
-    for (const aspect of this.zoneData.aspects) {
-
-      const key = ["zone", this.zoneData.id, "aspect", aspect].join(":");
-
-      const invokes = invokeMap[key] ?? 0;
-
-      const text = new PIXI.Text(
-        `• ${aspect} (${invokes})`,
-        {
-          fill: "#FFFFFF",
-          fontSize: Math.round(12 * this._getUIScale()),
-
-          wordWrap: true,
-
-        wordWrapWidth:
-          this.zoneData.width - 30
-        }
-      );
-
-      text.x = 15 * scale;
-      text.y = y;
-
-      this.addChild(text);
-
-      y += text.height + 2;
-    }
-  }
-
-  _drawConsequences() {
-
-    const scale = this._getUIScale();
-
-    if (
-      !this.zoneData.enableConsequences ||
-      !this.zoneData.consequences?.length
-    ) return;
-
-    let y = 35 * scale;
-
-    if (this.zoneData.enableStress) {
-      y += 30 * scale;
-    }
-
-    // Move below aspects if they exist
-    if (
-      this.zoneData.enableAspects &&
-      this.zoneData.aspects?.length
-    ) {
-
-      y += 20 * scale; // Aspects header
-
-      for (const aspect of this.zoneData.aspects) {
-
-        const tempText = new PIXI.Text(
-          `• ${aspect}`,
-          {
-            fill: "#FFFFFF",
-            fontSize: Math.round(12 * this._getUIScale()),
-
-            wordWrap: true,
-
-            wordWrapWidth:
-              this.zoneData.width - 30
-          }
-        );
-
-        y += tempText.height + 2;
-      }
-
-      y += 10 * scale;
-    }
-
-    const header = new PIXI.Text(
-      "⚠ Consequences",
-      {
-        fill: "#FF6666",
-        fontSize: Math.round(14 * this._getUIScale()),
-        fontWeight: "bold"
-      }
+    const idx = zones.findIndex(
+      z => z.id === this.zoneData.id
     );
 
-    header.x = 10 * scale;
-    header.y = y;
-
-    this.addChild(header);
-
-    y += 20 * scale;
-
-    const invokeMap = canvas.scene.getFlag("fate-tools", "invokes") ?? {};
-
-    for (const consequence of this.zoneData.consequences) {
-
-      const key = ["zone", this.zoneData.id, "aspect", consequence].join(":");
-
-      const invokes = invokeMap[key] ?? 0;
-
-      const text = new PIXI.Text(
-        `• ${consequence} (${invokes})`,
-        {
-          fill: "#FFFFFF",
-          fontSize: Math.round(12 * this._getUIScale()),
-
-          wordWrap: true,
-
-          wordWrapWidth:
-            this.zoneData.width - 30
-        }
-      );
-
-      text.x = 15 * scale;
-      text.y = y;
-
-      this.addChild(text);
-
-      y += text.height + 2;
+    if (idx !== -1) {
+      zones[idx] = this.zoneData;
     }
 
-  }
-
-  _getCalculatedHeight() {
-
-    const scale = this._getUIScale();
-
-    let height = 35 * scale;
-
-    if (this.zoneData.enableStress) {
-      height += 30 * scale;
-    }
-
-    if (
-      this.zoneData.enableAspects &&
-      this.zoneData.aspects?.length
-    ) {
-
-      height += 20 * scale;
-
-      for (const aspect of this.zoneData.aspects) {
-
-        const text = new PIXI.Text(
-          `• ${aspect}`,
-          {
-            fill: "#FFFFFF",
-
-            fontSize: Math.round(
-              12 * scale
-            ),
-
-            wordWrap: true,
-
-            wordWrapWidth:
-              this.zoneData.width - 30
-          }
-        );
-
-        height += text.height + 2;
-      }
-
-      height += 10 * scale;
-    }
-
-    if (
-      this.zoneData.enableConsequences &&
-      this.zoneData.consequences?.length
-    ) {
-
-      height += 20 * scale;
-
-      for (const consequence of this.zoneData.consequences) {
-
-        const text = new PIXI.Text(
-          `• ${consequence}`,
-          {
-            fill: "#FFFFFF",
-
-            fontSize: Math.round(
-              12 * scale
-            ),
-
-            wordWrap: true,
-
-            wordWrapWidth:
-              this.zoneData.width - 30
-          }
-        );
-
-        height += text.height + 2;
-      }
-
-      height += 10 * scale;
-    }
-
-    return Math.max(height, 100);
-  }
-
-  _drawResizeHandle() {
-
-    if (!game.user.isGM) return;
-
-    const handle = new PIXI.Graphics();
-
-    handle.lineStyle(
-      2,
-      0xFFFFFF,
-      1
-    );
-
-    handle.moveTo(0, 12);
-    handle.lineTo(12, 0);
-
-    handle.moveTo(4, 12);
-    handle.lineTo(12, 4);
-
-    handle.moveTo(8, 12);
-    handle.lineTo(12, 8);
-
-    handle.x =
-      this.zoneData.width - 16;
-
-    handle.y =
-      this.zoneData.height - 16;
-
-    handle.hitArea = new PIXI.Rectangle(
-      0,
-      0,
-      16,
-      16
-    );
-
-    handle.eventMode = "static";
-    handle.interactive = true;
-    handle.cursor = "nwse-resize";
-
-    handle.on(
-      "pointerdown",
-      this._onResizeStart.bind(this)
-    );
-
-    this.addChild(handle);
-
-    this.resizeHandle = handle;
-  }
-
-  _onResizeStart(event) {
-
-    event.stopPropagation();
-
-    if (!game.user.isGM) return;
-
-    this.resizing = true;
-
-  }
-
-  _onHoverIn() {
-
-    this.isHovered = true;
-
-    if (this.background) {
-      this.background.alpha = 0.9;
-    }
-
-  }
-
-  _onHoverOut() {
-
-    this.isHovered = false;
-
-    if (this.background) {
-      this.background.alpha = 0.4;
-    }
-
-  }
-
-  _getUIScale() {
-
-    return Math.max(
-      0.75,
-      this.zoneData.width / 300
-    );
-
+    await canvas.scene.setFlag("fate-tools", "zones", zones);
   }
 
 }
-

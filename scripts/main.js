@@ -1,9 +1,6 @@
 import { ZoneDataModel } from "./zone-model.js";
-//import { ZoneDocument } from "./zone-document.js";
-//import { ZonePlaceable } from "./zone-placeable.js";
-import { ZoneCardRenderer } from "./zone-placeable-v2.js";
+import { ZoneCardRenderer } from "./zone-placeable.js";
 import { ZoneManager } from "./zone-manager.js";
-//import { ZoneCanvas } from "./zone-canvas.js";
 import { ZoneConfig } from "./zone-config.js";
 import { AspectManager } from "./aspect-manager.js";
 import { ActiveAspects } from "./active-aspects.js";
