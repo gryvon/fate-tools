@@ -10,6 +10,9 @@ Requires:
 
 # Features
 
+## Organizational Enhancements
+- Moves Extras from the Biography tab to the Main tab. A decision made after ~~extensive user research, careful UI analysis, and~~ approximately five seconds of common sense.
+
 ## Active Aspects
 
 Provides a centralized list of:

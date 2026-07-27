@@ -24,7 +24,6 @@ export class ZoneManager {
 
       if (!renderer) {
         renderer = new game.fateZones.ZoneCardRenderer(zone);
-        console.log(zone)
         this.renderers.set(zone.id, renderer);
         renderer.render();
       } else {

@@ -1,3 +1,5 @@
+import { NewAspectDialog } from "./scene-aspect-hud.js";
+
 export class ActiveAspectsApp extends foundry.applications.api.ApplicationV2 {
 
   static DEFAULT_OPTIONS = {
@@ -166,13 +168,25 @@ export class ActiveAspects {
         }).map(group => `
           <div class="ft-card">
             <div class="ft-card-header ${this._renderHeaderClass(group)}" style="${this._renderHeaderStyle(group)}">
-              ${group.sourceName}
+              <span class="ft-activeaspects-group-title">
+                ${group.sourceName}
+              </span>
+              ${this._renderNewAspectButton(group)}
             </div>
             <div class="ft-card-body">
               ${group.aspects.map(a => this._renderAspect(a)).join("")}
             </div>
           </div>
         `).join("");
+  }
+
+  static _renderNewAspectButton(group) {
+    if (!game.user.isGM) { return ""; }
+    return `
+      <span>
+        <button id="ft-activeaspects-new-${group.sourceType}-aspect" data-source="${group.sourceType}" data-target="${group.sourceId}" class="fate-tools-new-button ft-activeaspects-new-button">+ New</button>
+      </span>
+    `
   }
 
   static _renderHeaderStyle(group) {
@@ -225,15 +239,30 @@ export class ActiveAspects {
             ${aspect.name}
           </div>
         </div>
-        <div class="ft-aspect-controls">
-          ${this._renderInvokeControls(aspect)}
+        <div class="ft-aspect-controls-row">
+          <div class="ft-aspect-controls">
+            ${this._renderInvokeControls(aspect)}
+          </div>
+          ${invokeButton}
+          ${this._renderDeleteButton(aspect)}
         </div>
       </div>
     `
   }
 
-  static _renderConsequence(aspect) {
+  static _renderDeleteButton(aspect) {
+    if (!game.user.isGM) { return ""; }
+    const key = game.fateTools.AspectManager.getAspectKey(aspect);
+    return `
+      <a
+        class="ft-activeaspects-delete-button" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}">
+        <i class="fa-solid fa-trash"></i>
+      </a>
+    `
+  }
 
+  static _renderConsequence(aspect) {
+    const invokeButton = this._renderInvokeButton(aspect);
     const severity =
       aspect.severity.replace(
         " Consequence",
@@ -250,12 +279,14 @@ export class ActiveAspects {
             ${aspect.name}
           </div>
         </div>
-        <div class="ft-aspect-controls">
-          ${this._renderInvokeControls(aspect)}
+        <div class="ft-aspect-controls-row">
+          <div class="ft-aspect-controls">
+            ${this._renderInvokeControls(aspect)}
+          </div>
+        ${invokeButton}
         </div>
       </div>
     `
-
   }
 
   static _renderInvokeControls(aspect) {
@@ -302,36 +333,7 @@ export class ActiveAspects {
           `;
         }
 
-    /*let content = "";
-
-    if (game.user.isGM) {
-      content += `
-        <a class="invoke-minus" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}">
-          <i class="fa-solid fa-minus"></i>
-        </a>        
-      `
-    }
-
-    content += `
-      <i class="fa-solid fa-${aspect.invokes}"></i>      
-    `
-
-    if (game.user.isGM) {
-      content += `
-        <a class="invoke-plus" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}">
-          <i class="fa-solid fa-plus"></i>
-        </a>
-      `
-    }
-
-    content += this._renderInvokeButton(aspect);
-
-    return content
-
-  }*/
-
   static _renderInvokeButton(aspect) {
-
     if (!game.fateTools.pendingInvoke) {
       return "";
     }
@@ -346,6 +348,24 @@ export class ActiveAspects {
   }
 
   static _attachHandlers(element) {
+
+    element.querySelectorAll(".ft-activeaspects-delete-button").forEach(el => {
+      el.addEventListener("click", async event => {
+      const key = event.currentTarget.dataset.key;
+      const aspect = await game.fateTools.AspectManager.getAspectByKey(key);
+      
+      await this.handleDeleteButton(aspect);
+      });
+    });
+
+    element.querySelectorAll(".ft-activeaspects-new-button").forEach(el => {
+      el.addEventListener("click", async event => {
+      const sourceType = event.currentTarget.dataset.source;
+      const sourceId = event.currentTarget.dataset.target;
+      await this.handleNewButton(sourceType, sourceId);
+
+      });
+    });
 
     element.querySelectorAll(".invoke-control-button").forEach(el => {
       el.addEventListener("click", async event => {
@@ -401,203 +421,73 @@ export class ActiveAspects {
       });
 
   }
+
+  static async handleNewButton(sourceType, sourceId) {
+    const dialog = new NewAspectDialog(sourceType);
+    let name = "";
+    switch (sourceType) {
+      case "game":
+        new NewAspectDialog(sourceType).render(true);
+        break;
+      case "scene":
+        new NewAspectDialog(sourceType).render(true);
+        break;
+      case "zone":
+        const zones = canvas.scene.getFlag("fate-tools", "zones");
+        const zone = zones.find(z => z.id === sourceId);
+        await dialog.render(true);
+        name = await dialog.result;
+        zone.aspects.push(name);
+        canvas.scene.setFlag("fate-tools", "zones", zones);
+        break;
+      case "actor":
+        console.log("actor")
+        const token = canvas.scene.tokens.get(sourceId);
+        const actor = token.actor;
+        console.log(actor);
+        const tempAspects = actor.getFlag("fate-tools", "temporaryAspects") ?? [];
+        await dialog.render(true);
+        name = await dialog.result;
+        console.log(name)
+        tempAspects.push(name);
+        await actor.setFlag("fate-tools", "temporaryAspects", tempAspects);
+        Hooks.callAll("fateToolsInvokesChanged");
+        break;
+      default:
+        console.log(sourceType, sourceId);        
+    }
+  }
+
+  static async handleDeleteButton(aspect) {
+    let aspects = [];
+    let updatedAspects = [];
+    if (aspect.category === "Temporary Aspect") {
+      const token = canvas.scene.tokens.get(aspect.sourceId);
+      aspects = token.actor.getFlag("fate-tools", "temporaryAspects");
+      updatedAspects = aspects.filter(item => item !== aspect.name);
+      await token.actor.setFlag("fate-tools", "temporaryAspects", updatedAspects);
+      Hooks.callAll("fateToolsInvokesChanged");
+    }
+    else if (aspect.sourceType === "zone") {
+      const zones = canvas.scene.getFlag("fate-tools", "zones");
+      const zone = zones.find(z => z.id === aspect.sourceId);
+      zone.aspects = zone.aspects.filter(item => item !== aspect.name);
+      await canvas.scene.setFlag("fate-tools", "zones", zones);
+    }
+    else if (aspect.sourceType === "scene") {
+      aspects = canvas.scene.getFlag("fate-core-official", "situation_aspects")
+      updatedAspects = aspects.filter(item => item.name !== aspect.name);
+      await canvas.scene.setFlag("fate-core-official", "situation_aspects", updatedAspects);
+    }
+    else if (aspect.sourceType === "game") {
+      aspects = game.settings.get("fate-core-official", "gameAspects")
+      updatedAspects = aspects.filter(item => item.name !== aspect.name);
+      await game.settings.set("fate-core-official", "gameAspects", updatedAspects);
+    }
+    else {
+      ui.notifications.error("You can't delete this aspect.");
+      return;
+    }
+    ui.notifications.info("Aspect deleted.");
+  }
 }
-
-/*  static async getContent() {
-
-    const invokeContext = game.fateTools.pendingInvoke;
-
-    let content = "";
-
-    if (invokeContext) {
-      const msg = game.messages.get(invokeContext.messageId);
-
-      content += `
-      <div class="invoke-context">
-
-        <h2>
-          Invoking With
-        </h2>
-
-        <p>
-          ${msg.speaker.alias}
-        </p>
-
-        <p>
-          Current Roll:
-          ${msg.rolls[0].total}
-        </p>
-
-      </div>
-
-      <hr>
-      `;
-
-    }
-
-    const aspects = await game.fateTools.AspectManager.getSceneAspects();
-
-    const groups = {};
-
-    for (const aspect of aspects) {
-
-      const key =
-    `${aspect.sourceId}`;
-
-    if (!groups[key]) {
-
-      groups[key] = {
-        sourceType: aspect.sourceType,
-        sourceName: aspect.sourceName,
-        aspects: []
-      };
-
-    }
-
-    groups[key].aspects.push(aspect);
-
-  }
-
-  for (const group of Object.values(groups)) {
-
-    content += `<h2>${groupd.sourceName}</h2>`
-
-    content += `
-     <h2>${group.sourceName}</h2>
-
-    <ul>
-
-    ${group.aspects.map(a => {
-
-    const invokeButton =
-    invokeContext
-    ? `
-            <a
-              class="invoke-aspect"
-              data-key="${game.fateTools.AspectManager.getAspectKey(a)}"
-            >
-              <i class="fa-solid fa-bolt-lightning"></i>
-              Invoke
-            </a>
-      `
-      : "";
-
-      if (a.type === "consequence") {
-
-        const severity =
-        a.severity.replace(
-          " Consequence",
-          ""
-          );
-
-        return `
-
-        <li>
-
-          [Consequence]
-          [${severity}]
-          ${a.name}
-
-          <a
-            class="invoke-minus"
-            data-key="${game.fateTools.AspectManager.getAspectKey(a)}"
-          >
-            -
-          </a>
-
-          ${a.invokes}
-
-          <a
-            class="invoke-plus"
-            data-key="${game.fateTools.AspectManager.getAspectKey(a)}"
-          >
-            +
-          </a>
-
-          ${invokeButton}
-
-        </li>
-
-          `;
-
-        }
-
-        return `
-
-      <li>
-
-        [Aspect]
-        ${a.name}
-
-        <a
-          class="invoke-minus"
-          data-key="${game.fateTools.AspectManager.getAspectKey(a)}"
-        >
-          -
-        </a>
-
-        ${a.invokes}
-
-        <a
-          class="invoke-plus"
-          data-key="${game.fateTools.AspectManager.getAspectKey(a)}"
-        >
-          +
-        </a>
-
-        ${invokeButton}
-
-      </li>
-
-          `;
-
-          }).join("")}
-
-</ul>
-        `;
-
-    }
-
-    return content;
-
-  }
-
-  static async refresh() {
-    if (!this._instance) { return; }
-    const content = await this.getContent();
-    const html = this._instance.element;
-    html.find(".dialog-content").html(content);
-    this._attachHandlers(this._instance, html);
-  }
-
-  static _attachHandlers(app, html) {
-    html.find(".invoke-plus").click(
-      async event => {
-        const key = event.currentTarget.dataset.key;
-        const aspect = await game.fateTools.AspectManager.getAspectByKey(key);
-        if (!aspect) { return; }
-        await game.fateTools.AspectManager.setInvokes(aspect, aspect.invokes + 1);
-        await game.fateTools.ActiveAspects.refresh();
-      }
-    );
-
-    html.find(".invoke-minus").click(
-      async event => {
-        const key = event.currentTarget.dataset.key;
-        const aspect = await game.fateTools.AspectManager.getAspectByKey(key);
-        if (!aspect) return;
-        await game.fateTools.AspectManager.setInvokes(aspect, Math.max(0, aspect.invokes - 1));
-        await game.fateTools.ActiveAspects.refresh();
-      }
-    );
-
-    html.find(".invoke-aspect").click(
-      async event => {
-        const key = event.currentTarget.dataset.key;
-        const aspect = await game.fateTools.AspectManager.getAspectByKey(key);
-        if (!aspect) return;
-        await game.fateTools.AspectManager.invoke(aspect);
-      }
-    );
-  }
-}*/

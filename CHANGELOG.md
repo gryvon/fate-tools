@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.8.9
+
+### Added
+ - Descriptions in Zone Overlays.
+ - Automatically move "Extras" from the Biography tab to the Main tab, *where it should be!*
+ - Actors now have temporary aspects or "tags" available in the Active Aspects.
+ - Handy + New and delete buttons are available to the GM in Active Aspects.
+
+### Improvements
+ - Converted Zone Config Dialog to ApplicationV2.
+ - Improved aesthetic of Zone Config Dialog.
+ - Changed all onClick to onChange for future v15 compliance.
+ - Removed some dead code.
+ - Scene HUD is now draggable and resizable.
+
+ ### Fixed
+ - Fixed bug that caused invoke buttons on the Active Aspects window to disappear.
+ - Fixed bug that causes a permission error to appear on other player's clients when a user makes a roll.
+
 ## v0.8.0
 
 ### Added

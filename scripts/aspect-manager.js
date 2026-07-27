@@ -170,6 +170,65 @@ export class AspectManager {
 
   }
 
+  static async getTemporaryActorAspects() {
+
+    const aspects = [];
+
+    for (const token of canvas.scene.tokens.contents) {
+
+      const actor = token.actor;
+      if (!actor) continue;
+
+      if (!game.user.isGM) {
+        const canObserve =
+          actor.testUserPermission(
+            game.user,
+            CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER
+          );
+
+        if (!canObserve) continue;
+      }
+
+      const tempAspects =
+        actor.getFlag(
+          "fate-tools",
+          "temporaryAspects"
+        ) ?? [];
+
+      for (const aspect of tempAspects) {
+
+        const aspectData = {
+          id: foundry.utils.randomID(),
+
+          name: aspect,
+
+          type: "aspect",
+          category: "Temporary Aspect",
+
+          sourceType: "actor",
+          sourceId: token.id,
+          sourceName: actor.name,
+
+          temporary: true,
+          visible: true
+        };
+
+        const invokeData =
+          await this.getInvokes(aspectData);
+
+        aspectData.invokes =
+          invokeData.invokes ?? 0;
+
+        aspectData.gm_invokes =
+          invokeData.gm_invokes ?? 0;
+
+        aspects.push(aspectData);
+      }
+    }
+
+    return aspects;
+  }
+
   static async getActorConsequences() {
 
     const consequences = [];
@@ -226,6 +285,7 @@ export class AspectManager {
     return [
       ...(await this.getZoneAspects()),
       ...(await this.getActorAspects()),
+      ...(await this.getTemporaryActorAspects()),
       ...(await this.getActorConsequences()),
       ...(await this.getSituationAspects()),
       ...(await this.getGameAspects())

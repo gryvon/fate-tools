@@ -13,8 +13,6 @@ export class NewCountdownDialog extends foundry.applications.api.ApplicationV2
     position: {
       width: 350,
       height: "auto",
-      //top: 100,
-      //left: 100
     }
   };
 
@@ -47,7 +45,8 @@ export class NewCountdownDialog extends foundry.applications.api.ApplicationV2
 
       if (!name) { return; }
       await SceneAspectHUD.create_new_countdown(name, boxes);
-      this.close();
+
+      await this.close();
     });
   }
 }
@@ -61,6 +60,7 @@ export class NewAspectDialog extends foundry.applications.api.ApplicationV2
     if (aspectType === "game") { this.type_title = "Game"; }
     if (aspectType === "scene") { this.type_title = "Scene"; }
     this.options.window.title = `New ${this.type_title} Aspect`;
+    this.promise = new Promise(resolve => { this._resolve = resolve; });
   }
 
   static DEFAULT_OPTIONS = {
@@ -74,6 +74,10 @@ export class NewAspectDialog extends foundry.applications.api.ApplicationV2
       height: "auto"
     }
   };
+
+  get result() {
+    return this.promise;
+  }
 
   async _renderHTML() {
     let type_title = ""
@@ -102,7 +106,8 @@ export class NewAspectDialog extends foundry.applications.api.ApplicationV2
       const name = element.querySelector('[name="aspect-name"]')?.value?.trim();
       if (!name) { return; }
       await SceneAspectHUD.create_new_aspect(this.aspectType, name);
-      this.close();
+      this._resolve(name);
+      await this.close();
     });
   }
 }
@@ -124,10 +129,13 @@ export class SceneAspectHUD {
     div.id = "fate-tools-scene-hud";
 
     div.innerHTML = `
+      <div class="ft-scene-hud-content">
         ${ this._renderAspectSection("Game Aspects", "game", gameAspects) }
         ${ this._renderAspectSection("Scene Aspects", "scene", sceneAspects) }
         ${ this._renderCountdownSection(countdowns) }
+      </div>
 
+      <div class="ft-scene-hud-resizer"></div>
     `;
 
     div.querySelectorAll(".fate-tools-countdown-box").forEach(box => {
@@ -148,6 +156,8 @@ export class SceneAspectHUD {
     });
 
     document.body.appendChild(div);
+    this._makeDraggable(div);
+    this._makeResizable(div);
 
     if (game.user.isGM) {
       const newGameAspectButton = document.querySelector("#fate-tools-new-game-aspect");
@@ -159,7 +169,14 @@ export class SceneAspectHUD {
     }
     const players = document.querySelector("#players");
     const bottomOffset = players?players.offsetHeight + 10 : 10;
-    div.style.bottom = `${bottomOffset}px`;
+    //div.style.bottom = `${bottomOffset}px`;
+    div.style.position = "fixed";
+    const pos = game.settings.get("fate-tools", "sceneHudPosition");
+    const size = game.settings.get("fate-tools", "sceneHudSize");
+    div.style.left = `${pos.left}px`;
+    div.style.top = `${pos.top}px`;
+    div.style.width = `${size.width}px`;
+    div.style.height = `${size.height}px`;
     this.element = div;
   }
 
@@ -322,4 +339,101 @@ export class SceneAspectHUD {
     Hooks.callAll("fateToolsInvokesChanged");
 
   }
+
+  static _makeDraggable(element) {
+
+    const handle = element.querySelector(".ft-scene-hud-content");
+
+    if (!handle) return;
+
+    let isDragging = false;
+
+    let offsetX = 0;
+    let offsetY = 0;
+
+    handle.style.cursor = "move";
+
+    handle.addEventListener("mousedown", event => {
+
+      isDragging = true;
+
+      const rect = element.getBoundingClientRect();
+
+      offsetX = event.clientX - rect.left;
+      offsetY = event.clientY - rect.top;
+
+      event.preventDefault();
+    });
+
+    document.addEventListener("mousemove", event => {
+
+      if (!isDragging) return;
+
+      element.style.left = `${event.clientX - offsetX}px`;
+      element.style.top = `${event.clientY - offsetY}px`;
+
+      element.style.bottom = "auto";
+    });
+
+    document.addEventListener("mouseup", async () => {
+      isDragging = false;
+
+      await game.settings.set("fate-tools", "sceneHudPosition", {top: parseInt(element.style.top), left: parseInt(element.style.left)});
+    });
+  }
+
+  static _makeResizable(element) {
+
+      const handle = element.querySelector(
+          ".ft-scene-hud-resizer"
+      );
+
+      if (!handle) return;
+
+      let resizing = false;
+
+      let startX;
+      let startY;
+
+      let startWidth;
+      let startHeight;
+
+      handle.addEventListener("mousedown", event => {
+
+          resizing = true;
+
+          startX = event.clientX;
+          startY = event.clientY;
+
+          startWidth = element.offsetWidth;
+          startHeight = element.offsetHeight;
+
+          event.preventDefault();
+          event.stopPropagation();
+      });
+
+      document.addEventListener("mousemove", event => {
+
+          if (!resizing) return;
+
+          const width =
+              startWidth + (event.clientX - startX);
+
+          const height =
+              startHeight + (event.clientY - startY);
+
+          element.style.width =
+              `${Math.max(250, width)}px`;
+
+          element.style.height =
+              `${Math.max(200, height)}px`;
+      });
+
+      document.addEventListener("mouseup", async () => {
+          resizing = false;
+
+          await game.settings.set("fate-tools", "sceneHudSize", {width: element.offsetWidth, height: element.offsetHeight});
+      });
+  }
+
 }

@@ -43,6 +43,28 @@ Hooks.once("init", () => {
 
   game.fateTools.pendingInvoke = null;
 
+  game.settings.register("fate-tools", "sceneHudPosition", {
+    name: "Scene HUD Position",
+    scope: "client",
+    config: false,
+    type: Object,
+    default: {
+      left: 20,
+      top: 100
+    }
+  });
+
+  game.settings.register("fate-tools", "sceneHudSize", {
+    name: "Scene HUD Size",
+    scope: "client",
+    config: false,
+    type: Object,
+    default: {
+      width: 350,
+      height: 450
+    }
+  });
+
 });
 
 Hooks.on(
@@ -350,6 +372,8 @@ Hooks.on("hoverToken", (token, hover) => {
 Hooks.on("createChatMessage", async (message) => {
   if (!message.rolls?.length) { return; }
 
+  if (!game.user.isGM) { return; }
+
   const rollData = game.fateTools.RollManager.extractRollData(message);
   await message.setFlag("fate-tools", "rollData", rollData);
 });
@@ -468,3 +492,12 @@ function saveTrackColor(track, element) {
   track["fate-tools"] ??= {};
   track["fate-tools"].color = color;
 }
+
+Hooks.on("renderActorSheetV2", (app, html) => {
+  const extras = html.querySelector(".mfate-extras");
+  const stuntsPanel = html.querySelector(".mfate-panel--stunts");
+
+  if (extras && stuntsPanel) {
+    stuntsPanel.insertAdjacentElement("afterend", extras);
+  }
+});
