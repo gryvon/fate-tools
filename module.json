@@ -37,6 +37,8 @@
       "path": "lang/en.json"
     }
   ],
+  "url": "https://github.com/gryvon/fate-tools",
+  "readme": "https://raw.githubusercontent.com/gryvon/fate-tools/refs/heads/main/README.md",
   "download": "https://github.com/gryvon/fate-tools/releases/download/v0.8.9/fate-tools-v0.8.9.zip",
   "manifest": "https://raw.githubusercontent.com/gryvon/fate-tools/refs/heads/main/module.json"
 }
