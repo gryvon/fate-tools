@@ -4,6 +4,7 @@
 
 ### Improvements
  - Invokes can now only be called by a token observer or owner.
+ - Added ToolTips to Active Aspects control buttons.
 
 ## v0.8.9
 

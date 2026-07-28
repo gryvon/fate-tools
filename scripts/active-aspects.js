@@ -254,8 +254,7 @@ export class ActiveAspects {
     if (!game.user.isGM) { return ""; }
     const key = game.fateTools.AspectManager.getAspectKey(aspect);
     return `
-      <a
-        class="ft-activeaspects-delete-button" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}">
+      <a title="Delete this aspect" class="ft-activeaspects-delete-button" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}">
         <i class="fa-solid fa-trash"></i>
       </a>
     `
@@ -299,7 +298,7 @@ export class ActiveAspects {
           </button>
         ` : ""}
 
-        <span class="ft-invoke-badge">
+        <span title="Player Free Invokes" class="ft-invoke-badge">
           ${aspect.invokes ?? 0}
         </span>
 
@@ -319,7 +318,7 @@ export class ActiveAspects {
           </button>
         ` : ""}
 
-        <span class="ft-gm-invoke-badge">
+        <span title="GM Free Invokes" class="ft-gm-invoke-badge">
           ${aspect.gm_invokes ?? 0}
         </span>
 
@@ -339,8 +338,7 @@ export class ActiveAspects {
     }
 
     return `
-      <a
-        class="invoke-aspect" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}">
+      <a title="Invoke Aspect!" class="invoke-aspect" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}">
         <i class="fa-solid fa-bolt-lightning"></i>
       </a>
     `;

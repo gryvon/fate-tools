@@ -295,11 +295,7 @@ export class RollManager {
 
       <div class="ft-roll-invoke">
 
-        <button class="ft-roll-invoke-button"
-          data-message-id="${rollData.messageId}"
-          data-actor-id="${rollData.actorId}"
-          data-token-id="${rollData.tokenId}"
-        >
+        <button class="ft-roll-invoke-button" title="Invoke an Aspect!" data-message-id="${rollData.messageId}" data-actor-id="${rollData.actorId}" data-token-id="${rollData.tokenId}">
 
           <i class="fa-solid fa-bolt-lightning"></i>
 
