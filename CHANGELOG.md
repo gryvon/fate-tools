@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.8.10
+
+### Improvements
+ - Invokes can now only be called by a token observer or owner.
+
 ## v0.8.9
 
 ### Added

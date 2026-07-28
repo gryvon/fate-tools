@@ -379,6 +379,67 @@ Hooks.on("createChatMessage", async (message) => {
 });
 
 Hooks.on("renderChatMessageHTML", (message, html) => {
+
+  if (!message.rolls.length) return;
+
+  const rollData =
+    message.getFlag("fate-tools", "rollData");
+
+  if (!rollData) return;
+
+  const actor =
+    game.actors.get(rollData.actorId);
+
+  if (!actor) return;
+
+  const canObserve =
+    game.user.isGM ||
+    actor.testUserPermission(
+      game.user,
+      CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER
+    );
+
+  if (!canObserve) return;
+
+  // Rest of your code...
+});
+
+/*button.addEventListener("click", async event => {
+
+  const actorId =
+    event.currentTarget.dataset.actorId;
+
+  const actor =
+    game.actors.get(actorId);
+
+  const canObserve =
+    actor &&
+    (
+      game.user.isGM ||
+      actor.testUserPermission(
+        game.user,
+        CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER
+      )
+    );
+
+  if (!canObserve) {
+    ui.notifications.error(
+      "You do not have permission to view aspects for this actor."
+    );
+    return;
+  }
+
+  game.fateTools.pendingInvoke = {
+    messageId: event.currentTarget.dataset.messageId,
+    actorId,
+    tokenId: event.currentTarget.dataset.tokenId
+  };
+
+  await game.fateTools.ActiveAspects.show();
+});*/
+
+Hooks.on("renderChatMessageHTML", (message, html) => {
+  console.log(message);
   if (!message.rolls.length) { return; }
 
   const rollData = message.getFlag("fate-tools", "rollData");
@@ -398,6 +459,16 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
 
   if (button) {
     button.addEventListener("click", async event => {
+      const actorId = message.speaker.actor;
+      const actor = game.actors.get(actorId);
+
+      const canObserve = actor && (game.user.isGM || actor.testUserPermission(game.user, CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER));  
+
+      if (!canObserve) {
+        ui.notifications.error("You do not have permissions for this actor.");
+        return;
+      }
+
       game.fateTools.pendingInvoke = {
         messageId: event.currentTarget.dataset.messageId,
         actorId: event.currentTarget.dataset.actorId,
