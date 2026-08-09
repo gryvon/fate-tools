@@ -94,6 +94,8 @@ export class ZoneConfig extends HandlebarsApplicationMixin(ApplicationV2) {
 
     this.zone.render();
 
+    Hooks.callAll("updateScene");
+
     await this.close();
   }
 

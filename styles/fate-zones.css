@@ -1,3 +1,229 @@
+/* +------------------- */
+/* | General          | */
+/* *------------------- */
+
+/* + New Buttons */
+
+.ft-common-new-button {
+  border: none;
+  border-radius: 12px;
+  padding: 2px 10px;
+  font-size: 0.85em;
+  font-weight: bold;
+  cursor: pointer;
+  background: rgba(255,255,255,0.08);
+  color: var(--color-text-light-primary);
+}
+
+.ft-common-new-button:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+/* Invokes */
+
+.ft-common-invoke-container {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.ft-common-player-invoke-badge {
+  min-width: 20px;
+  min-height: 20px;
+  text-align: center;
+  border-radius: 10px;
+  padding: 2px 6px;
+  background: #2f7d32;
+  color: white;
+  font-weight: bold;
+  font-size: 0.8em;
+}
+
+.ft-common-gm-invoke-badge {
+  min-width: 20px;
+  min-height: 20px;
+  text-align: center;
+  border-radius: 10px;
+  padding: 2px 6px;
+  background: #a53939;
+  color: white;
+  font-weight: bold;
+  font-size: 0.8em;
+}
+
+/* Dice */
+
+.ft-common-die-plus {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #000;
+  border-radius: 6px;
+  margin-right: 4px;
+  font-weight: bold;
+  font-size: 54px;
+  box-sizing: border-box;
+  background: rgba(255,255,255,1);
+  color: black;
+}
+
+.ft-common-die-plus::before {
+  content: "+";
+}
+
+.ft-common-die-minus {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #000;
+  border-radius: 6px;
+  margin-right: 4px;
+  font-weight: bold;
+  font-size: 54px;
+  box-sizing: border-box;
+  background: rgba(255,255,255,1);
+  color: black;
+}
+
+.ft-common-die-minus::before {
+  content: "-";
+}
+
+.ft-common-die-blank {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #000;
+  border-radius: 6px;
+  margin-right: 4px;
+  font-weight: bold;
+  font-size: 54px;
+  box-sizing: border-box;
+  background: rgba(255,255,255,1);
+  color: transparent;
+}
+
+.ft-common-die-blank::before {
+  content: "x";
+}
+
+/* +------------------- */
+/* | Scene HUD        | */
+/* *------------------- */
+
+.ft-scene-hud-countdown-track {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+  justify-content: center;
+}
+
+.ft-scene-hud-countdown-box {
+  width: 18px;
+  height: 18px;
+  border: 2px solid white;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.ft-scene-hud-countdown-box.filled {
+  background: white;
+}
+
+.ft-scene-hud-countdown-container {
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.ft-scene-hud-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ft-scene-hud-section.game
+.ft-scene-hud-header {
+  border-left: 4px solid #6b4cab;
+}
+
+.ft-scene-hud-section.scene
+.ft-scene-hud-header {
+  border-left: 4px solid #4c8b4c;
+}
+
+.ft-scene-hud-section.countdowns
+.ft-scene-hud-header {
+  border-left: 4px solid #c58c2d;
+}
+
+.ft-scene-hud-resizer {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    width: 14px;
+    height: 14px;
+    cursor: nwse-resize;
+    opacity: 0.5;
+}
+
+.ft-scene-hud-resizer::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 12px;
+    height: 12px;
+    background:
+      linear-gradient(
+        135deg,
+        transparent 50%,
+        #999 50%
+      );
+}
+
+#ft-scene-hud {
+    position: fixed;
+
+    top: 100px;
+    left: 10px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    min-width: 250px;
+    min-height: 200px;
+
+    overflow: auto;
+
+    background: rgba(0, 0, 0, 0.85);
+
+    color: white;
+
+    padding: 10px;
+
+    border: 1px solid #666;
+    border-radius: 6px;
+
+    z-index: 1000;
+}
+
+.ft-scene-hud-content {
+    overflow: auto;
+}
+
+/* +------------------- */
+/* | Zone HUD         | */
+/* *------------------- */
+
 .ft-zone-overlay {
   position: absolute;
   opacity: 0.6;
@@ -11,7 +237,7 @@
   opacity: 0.9;
 }
 
-.ft-zone-card {
+.ft-zone-overlay-card {
   border: 2px solid var(--zone-color);
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.85);
@@ -26,30 +252,7 @@
     0 0 16px var(--zone-color);
 }
 
-
-
-
-.ft-new-aspect,
-.ft-new-countdown {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  padding: 10px;
-
-  background: rgba(20, 20, 20, 0.95);
-
-  color: var(--color-text-primary);
-
-  border: 1px solid #6a6a6a;
-  border-radius: 8px;
-}
-
-span.ft-aspect-title {
-    padding-right: 20px;
-}
-
-.ft-zone-header {
+.ft-zone-overlay-header {
   padding: 8px;
   font-size: 1.2em;
   font-weight: bold;
@@ -60,28 +263,28 @@ span.ft-aspect-title {
   justify-content: space-between;
 }
 
-.ft-zone-color {
+.ft-zone-overlay-color {
   width: 12px;
   height: 12px;
   border-radius: 50%;
   color: var(--zone-color);
 }
 
-.ft-zone-stress-track {
+.ft-zone-overlay-stress-track {
   padding: 8px;
   text-align: center;
   border-bottom: 1px solid var(--zone-color);
 }
 
-.ft-zone-section {
+.ft-zone-overlay-section {
   border-bottom: 1px solid var(--zone-color);
 }
 
-.ft-zone-stress-box {
+.ft-zone-overlay-stress-box {
   pointer-events: auto;
 }
 
-.ft-zone-section-header {
+.ft-zone-overlay-section-header {
   font-weight: bold;
   padding: 4px 8px;
   border-top: 1px solid var(--zone-color);
@@ -89,7 +292,7 @@ span.ft-aspect-title {
   background: rgba(255,255,255,0.05);
 }
 
-.ft-zone-description {
+.ft-zone-overlay-description {
   padding: 8px 12px;
   font-size: 0.85em;
   font-style: italic;
@@ -100,48 +303,22 @@ span.ft-aspect-title {
   /* pointer-events: auto; */
 }
 
-.ft-zone-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 4px 8px;
-}
-
-.ft-zones-invokes-container {
+.ft-zone-overlay-invokes-container {
   display: flex;
   gap: 4px;
   align-items: center;
 }
 
-.ft-zone-row {
+.ft-zone-overlay-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 4px 8px;
 }
 
-.ft-zone-player-invoke-badge {
-  min-width: 20px;
-  text-align: center;
-  border-radius: 10px;
-  padding: 2px 6px;
-  background: #2f7d32;
-  color: white;
-  font-weight: bold;
-  font-size: 0.8em;
-}
 
-.ft-zone-gm-invoke-badge {
-  min-width: 20px;
-  text-align: center;
-  border-radius: 10px;
-  padding: 2px 6px;
-  background: #a53939;
-  color: white;
-  font-weight: bold;
-  font-size: 0.8em;
-}
 
-.ft-zone-resizer {
+.ft-zone-overlay-resizer {
   position: absolute;
   right: 2px;
   bottom: 2px;
@@ -151,7 +328,7 @@ span.ft-aspect-title {
   pointer-events: auto;
 }
 
-.ft-zone-resizer::before {
+.ft-zone-overlay-resizer::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -173,78 +350,42 @@ span.ft-aspect-title {
       transparent 80%
     );
 }
-`
-.zone-section {
-  margin-bottom: 0.75rem;
 
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 6px;
-
-  overflow: hidden;
-  background: rgba(255,255,255,0.03);
-}
-
-.zone-section h2 {
-  margin: 0;
-  padding: 0.5rem 0.75rem;
-
-  font-size: 1rem;
-  font-weight: 600;
-
-  color: #f0f0f0;
-
-  background: linear-gradient(
-    to right,
-    rgba(255,255,255,0.08),
-    rgba(255,255,255,0.03)
-  );
-
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-.zone-section-content {
-  padding: 0.75rem;
-}
-
-
-
-.fate-tools-countdown-track {
+/*
+.ft-new-aspect,
+.ft-new-countdown {
   display: flex;
-  gap: 6px;
-  margin-top: 4px;
-  justify-content: center;
-}
+  flex-direction: column;
+  gap: 8px;
 
-.fate-tools-countdown-box {
-  width: 18px;
-  height: 18px;
+  padding: 10px;
 
-  border: 2px solid white;
+  background: rgba(20, 20, 20, 0.95);
 
-  box-sizing: border-box;
+  color: var(--color-text-primary);
 
-  cursor: pointer;
-}
+  border: 1px solid #6a6a6a;
+  border-radius: 8px;
+} 
 
-.fate-tools-countdown-box.filled {
-  background: white;
-}
-
-.fate-tools-countdown-container {
-  margin-top: 6px;
-  margin-bottom: 6px;
-}
+span.ft-aspect-title {
+    padding-right: 20px;
+} 
 
 .fate-tools-active-aspects {
   overflow-y: auto;
-}
+} */
 
-.ft-content {
+/* +------------------- */
+/* | Active Aspects   | */
+/* *------------------- */
+
+.ft-active-aspects-content {
     overflow-y: auto;
     max-height: 650px;
 }
 
-.ft-card {
+.ft-active-aspects-card {
 
   margin-bottom: 12px;
 
@@ -256,7 +397,7 @@ span.ft-aspect-title {
 
 }
 
-.ft-card-header {
+.ft-active-aspects-card-header {
     font-weight: bold;
     /* padding: 8px; */
     /* background: rgba(255,255,255,0.08); */
@@ -268,31 +409,19 @@ span.ft-aspect-title {
     /* background: rgba(255, 255, 255, 0.08); */
 }
 
-.ft-card-body {
+.ft-active-aspects-card-body {
 
   padding: 8px;
 
 }
 
-.ft-aspect-row {
-
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  padding: 4px 0;
-
-}
-
-.ft-aspect-name {
+.ft-active-aspects-aspect-name {
 
   font-weight: 500;
 
 }
 
-.ft-aspect-type {
+.ft-active-aspects-aspect-type {
 
   font-size: 0.8em;
 
@@ -300,17 +429,13 @@ span.ft-aspect-title {
 
 }
 
-.ft-aspect-controls {
-
+.ft-active-aspects-aspect-controls {
   display: flex;
-
   gap: 8px;
-
   align-items: center;
-
 }
 
-.ft-card-container {
+.ft-active-aspects-card-container {
 
   display: grid;
 
@@ -321,119 +446,131 @@ span.ft-aspect-title {
 
 }
 
-.ft-card-header.game  { background: #4c3b78; }
-.ft-card-header.scene { background: #375f38; }
-.ft-card-header.zone  { background: #2f6e72; }
-.ft-card-header.actor { background: #6b4f3a; }
-.ft-card-header.actor-player { background: #2f5ea8; }
-.ft-card-header.actor-npc { background: #6b4f3a; }
+.ft-active-aspects-card-header.game  { background: #4c3b78; }
+.ft-active-aspects-card-header.scene { background: #375f38; }
+.ft-active-aspects-card-header.zone  { background: #2f6e72; }
+.ft-active-aspects-card-header.actor { background: #6b4f3a; }
+.ft-active-aspects-card-header.actor-player { background: #2f5ea8; }
+.ft-active-aspects-card-header.actor-npc { background: #6b4f3a; }
 
-.ft-invoke-card {
-
+.ft-active-aspects-invoke-card {
   margin-bottom: 12px;
-
   border: 2px solid #d4a72c;
-
   border-radius: 6px;
-
   overflow: hidden;
-
 }
 
-.ft-invoke-header {
-
+.ft-active-aspects-invoke-header {
   background: #d4a72c;
-
   color: black;
-
   font-weight: bold;
-
   padding: 8px;
-
 }
 
-.ft-invoke-body {
-
+.ft-active-aspects-invoke-body {
   padding: 8px;
-
 }
 
-.ft-invoke-label {
-
+.ft-active-aspects-invoke-label {
   opacity: 0.7;
-
   font-size: 0.8em;
-
 }
 
-.ft-invoke-value {
-
+.ft-active-aspects-invoke-value {
   margin-bottom: 8px;
-
   font-weight: bold;
-
 }
 
-.ft-invoke-roll {
-
+.ft-active-aspects-invoke-roll {
   font-size: 1.5em;
-
   font-weight: bold;
-
   color: #d4a72c;
-
 }
 
-.ft-die {
-
-  display: inline-flex;
-
-  justify-content: center;
+.ft-active-aspects-aspect-row {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
+  padding: 4px 8px;
+}
 
-  width: 40px;
-  height: 40px;
+.ft-active-aspects-aspect-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
 
-  border: 2px solid #000;
-
-  border-radius: 6px;
-
-  margin-right: 4px;
-
+.ft-active-aspects-invoke-badge {
+  min-width: 22px;
+  text-align: center;
+  border-radius: 10px;
+  padding: 2px 6px;
+  background: #2f7d32;
+  color: white;
   font-weight: bold;
-
-  font-size: 54px;
-
-  box-sizing: border-box;
-
-  background: rgba(255,255,255,1);
-
 }
 
-.ft-die.plus {
-  color: black;
+.ft-active-aspects-gm-invoke-badge {
+  min-width: 22px;
+  text-align: center;
+  border-radius: 10px;
+  padding: 2px 6px;
+  background: #a53939;
+  color: white;
+  font-weight: bold;
 }
 
-.ft-die.minus {
-  color: black;
+.ft-active-aspects-invoke-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
 }
 
-.ft-die.blank {
-  background: rgba(255,255,255,1);
-  color: transparent;
+.ft-active-aspects-invoke-stack button {
+  width: 12px;
+  height: 12px;
+  min-height: 12px;
+  padding: 0;
+  margin: 0;
+  line-height: 10px;
+  font-size: 10px;
+  border: none;
 }
 
-.ft-die.plus::before {
-  content: "+";
+.ft-active-aspects-invoke-aspect {
+    color: #edff00;
+    padding-left: 5px;
 }
 
-.ft-die.minus::before {
-  content: "-";
+.ft-active-aspects-aspect-controls-row {
+    display: inline-flex;
+    justify-content: flex-end;
+    align-items: center;
 }
 
-.ft-die.blank::before {
-  content: "x";
+
+.ft-active-aspects-new-button {
+    background: black !important;
+    border: 1px solid antiquewhite;
 }
+
+.ft-active-aspects-delete-button {
+    color: darkslategrey;
+    margin-left: 5px;
+}
+
+/* */
+
+.ft-scene-aspect-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  font-size: 0.8em;
+}
+
+/* +------------------- */
+/* | Roll Card        | */
+/* *------------------- */
 
 .ft-roll-card {
   margin-top: 8px;
@@ -443,7 +580,7 @@ span.ft-aspect-title {
   background: rgba(0, 0, 0, 0.08);
 }
 
-.ft-roll-header {
+.ft-roll-card-header {
   background: #375f38;
   color: white;
   padding: 8px 12px;
@@ -454,13 +591,13 @@ span.ft-aspect-title {
   justify-content: space-between;
 }
 
-.ft-roll-skill-title {
+.ft-roll-card-skill-title {
   flex: 1;
   font-size: 1.1em;
   font-weight: bold;
 }
 
-.ft-roll-modify-button {
+.ft-roll-card-modify-button {
   width: 28px;
   height: 28px;
   border: none;
@@ -475,17 +612,17 @@ span.ft-aspect-title {
   justify-content: center;
 }
 
-.ft-roll-modify-button:hover {
+.ft-roll-card-modify-button:hover {
   filter: brightness(1.1);
 }
 
-.ft-roll-actor {
+.ft-roll-card-actor {
   padding: 8px 12px;
   font-size: 1.1em;
   font-weight: bold;
 }
 
-.ft-roll-row {
+.ft-roll-card-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -493,38 +630,34 @@ span.ft-aspect-title {
   font-size: 0.95em;
 }
 
-.ft-roll-row-dice {
+.ft-roll-card-row-dice {
   display: flex;
   justify-content: center;
 }
 
-.ft-roll-total {
+.ft-roll-card-total {
   text-align: center;
   border-top: 1px solid #666;
   margin-top: 8px;
   padding-top: 8px;
 }
 
-.ft-roll-total-value {
+.ft-roll-card-total-value {
   font-size: 2.2em;
   font-weight: bold;
 }
 
-.ft-roll-total-ladder {
+.ft-roll-card-total-ladder {
   font-size: 1em;
   opacity: 0.85;
   font-style: italic;
 }
 
-.ft-roll-invoke {
+.ft-roll-card-invoke {
   margin-top: 10px;
 }
 
-.ft-roll-invoke {
-  margin-top: 10px;
-}
-
-.ft-roll-invoke-button {
+.ft-roll-card-invoke-button {
   width: 100%;
   padding: 10px;
   border: none;
@@ -535,11 +668,11 @@ span.ft-aspect-title {
   font-size: 1.05em;
 }
 
-.ft-roll-invoke-button:hover {
+.ft-roll-card-invoke-button:hover {
   filter: brightness(1.1);
 }
 
-.ft-reroll-label {
+.ft-roll-card-reroll-label {
   font-size: 0.8em;
   opacity: 0.65;
   text-align: center;
@@ -555,74 +688,9 @@ span.ft-aspect-title {
   margin-top: 10px;
 }
 
-.ft-scene-hud-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 8px;
-  background: rgba(255, 255, 255, 0.08);
-}
 
 
-.ft-hud-section.game
-.ft-scene-hud-header {
-  border-left: 4px solid #6b4cab;
-}
 
-.ft-hud-section.scene
-.ft-scene-hud-header {
-  border-left: 4px solid #4c8b4c;
-}
-
-.ft-hud-section.countdowns
-.ft-scene-hud-header {
-  border-left: 4px solid #c58c2d;
-}
-
-.ft-aspect-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 8px;
-}
-
-.ft-aspect-row:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.ft-scene-aspect-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 8px;
-  font-size: 0.8em;
-}
-
-.ft-invoke-container {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-}
-
-.ft-invoke-badge {
-  min-width: 22px;
-  text-align: center;
-  border-radius: 10px;
-  padding: 2px 6px;
-  background: #2f7d32;
-  color: white;
-  font-weight: bold;
-}
-
-.ft-gm-invoke-badge {
-  min-width: 22px;
-  text-align: center;
-  border-radius: 10px;
-  padding: 2px 6px;
-  background: #a53939;
-  color: white;
-  font-weight: bold;
-}
 
 .fate-tools-countdown-box {
   width: 20px;
@@ -634,73 +702,11 @@ span.ft-aspect-title {
   background: #c58c2d;
 }
 
-.fate-tools-new-button {
-  border: none;
-  border-radius: 12px;
-  padding: 2px 10px;
-  font-size: 0.85em;
-  font-weight: bold;
-  cursor: pointer;
-  background: rgba(255,255,255,0.08);
-  color: var(--color-text-light-primary);
-}
 
-.fate-tools-new-button:hover {
-  background: rgba(255,255,255,0.15);
-}
 
-.ft-aspect-controls {
 
-  display: flex;
 
-  gap: 8px;
-
-  align-items: center;
-
-}
-
-.ft-aspect-controls {
-
-  display: flex;
-
-  gap: 8px;
-
-  align-items: center;
-
-}
-
-.ft-invoke-stack {
-
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: center;
-
-  gap: 2px;
-
-}
-
-.ft-invoke-stack button {
-
-  width: 12px;
-  height: 12px;
-
-  min-height: 12px;
-
-  padding: 0;
-  margin: 0;
-
-  line-height: 10px;
-  font-size: 10px;
-
-  border: none;
-
-  /*border-radius: 3px;*/
-
-}
-
-.ft-zoneconfig {
+.ft-zone-config {
   padding: 0.5rem;
 }
 
@@ -820,91 +826,3 @@ span.ft-aspect-title {
     display: none;
 }
 
-.invoke-aspect {
-    color: #edff00;
-    padding-left: 5px;
-}
-
-.ft-aspect-controls-row {
-    display: inline-flex;
-    justify-content: flex-end;
-    align-items: center;
-}
-
-
-
-
-
-.ft-scene-hud-resizer {
-    position: absolute;
-
-    right: 2px;
-    bottom: 2px;
-
-    width: 14px;
-    height: 14px;
-
-    cursor: nwse-resize;
-
-    opacity: 0.5;
-}
-
-.ft-scene-hud-resizer::before {
-    content: "";
-
-    position: absolute;
-
-    right: 0;
-    bottom: 0;
-
-    width: 12px;
-    height: 12px;
-
-    background:
-        linear-gradient(
-            135deg,
-            transparent 50%,
-            #999 50%
-        );
-}
-
-#fate-tools-scene-hud {
-    position: fixed;
-
-    top: 100px;
-    left: 10px;
-
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-
-    min-width: 250px;
-    min-height: 200px;
-
-    overflow: auto;
-
-    background: rgba(0, 0, 0, 0.85);
-
-    color: white;
-
-    padding: 10px;
-
-    border: 1px solid #666;
-    border-radius: 6px;
-
-    z-index: 1000;
-}
-
-.ft-scene-hud-content {
-    overflow: auto;
-}
-
-.ft-activeaspects-new-button {
-    background: black !important;
-    border: 1px solid antiquewhite;
-}
-
-.ft-activeaspects-delete-button {
-    color: darkslategrey;
-    margin-left: 5px;
-}

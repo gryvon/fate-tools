@@ -16,8 +16,14 @@ export class ZoneCardRenderer {
 
   render() {
     // this.destroy();
-
-    if (document.getElementById(`ft-zone-overlay-${this.zoneData.id}`)) {
+    const zoneOverlay = document.getElementById(`ft-zone-overlay-${this.zoneData.id}`)
+    if (zoneOverlay) {
+      this.element = zoneOverlay;
+      zoneOverlay.style.setProperty("--zone-color", this.zoneData.color ?? "#ffffff");
+      zoneOverlay.style.left = `${this.zoneData.position.x ?? 100}px`;
+      zoneOverlay.style.top = `${this.zoneData.position.y ?? 100}px`;
+      zoneOverlay.style.width = `${this.zoneData.position.width ?? 500}px`;
+      zoneOverlay.style.height = `${this.zoneData.position.height ?? 500}px`;      
       this.refreshHTML();
       return;
     }
@@ -61,10 +67,10 @@ export class ZoneCardRenderer {
 
   renderHTML() {
     return `
-      <div class="ft-zone-card">
-        <div class="ft-zone-header">
-          <div class="ft-zone-title">
-            <span class="ft-zone-color"><i class="fa-solid fa-star"></i></span>
+      <div class="ft-zone-overlay-card">
+        <div class="ft-zone-overlay-header">
+          <div class="ft-zone-overlay-title">
+            <span class="ft-zone-overlay-color"><i class="fa-solid fa-star"></i></span>
             ${this.zoneData.name}
           </div>
           ${this._renderModifyButton()}
@@ -80,15 +86,29 @@ export class ZoneCardRenderer {
 
   refreshHTML() {
     if (!this.element) { return this.render(); }
+
+    const pos = this.zoneData.position ?? {
+      x: this.zoneData.x,
+      y: this.zoneData.y,
+      width: this.zoneData.width,
+      height: this.zoneData.height
+    };
+
     this.element.innerHTML = this.renderHTML();
+    this.element.style.setProperty("--zone-color", this.zoneData.color ?? "#ffffff");
+    this.element.style.left = `${pos.x ?? 100}px`;
+    this.element.style.top = `${pos.y ?? 100}px`;
+    this.element.style.width = `${pos.width ?? 500}px`;
+    this.element.style.height = `${pos.height ?? 500}px`;      
+
     this.attachDocumentListeners();
   }
 
   _renderModifyButton() {
     if (!game.user.isGM) { return ""; }
     return `
-      <div class="ft-zone-modify">
-        <button class="ft-zone-modify-button" data-message-id="${this.zoneData.id}">
+      <div class="ft-zone-overlay-modify">
+        <button class="ft-zone-overlay-modify-button" data-message-id="${this.zoneData.id}">
           <i class="fa-solid fa-screwdriver-wrench"></i>
         </button>
       </div>
@@ -100,13 +120,13 @@ export class ZoneCardRenderer {
 
     const stress = this.zoneData.stress || [];
 
-    let html = `<div class="ft-zone-stress-track">`;
+    let html = `<div class="ft-zone-overlay-stress-track">`;
 
     for (let i = 0; i < this.zoneData.stressBoxes; i++) {
       const checked = stress[i] ?? false;
 
       html += `
-        <span class="ft-zone-stress-box" data-index="${i}">
+        <span class="ft-zone-overlay-stress-box" data-index="${i}">
           ${
             checked
               ? '<i class="fa-solid fa-square-xmark"></i>'
@@ -126,11 +146,10 @@ export class ZoneCardRenderer {
     if (description === "") {return ""; }
 
     return `
-      <div class="ft-zone-description">
+      <div class="ft-zone-overlay-description">
         ${description}
       </div>
     `
-
   }
 
   _renderAspects() {
@@ -139,8 +158,8 @@ export class ZoneCardRenderer {
     const invokeMap = canvas.scene.getFlag("fate-tools", "invokes") ?? {};
 
     let html = `
-      <div class="ft-zone-section">
-        <div class="ft-zone-section-header">
+      <div class="ft-zone-overlay-section">
+        <div class="ft-zone-overlay-section-header">
           Aspects
         </div>
     `;
@@ -148,15 +167,15 @@ export class ZoneCardRenderer {
       const key = ["zone", this.zoneData.id, "aspect", aspect].join(":");
       const invokeData = invokeMap[key] ?? {"invokes": 0, "gm_invokes": 0}
       html += `
-        <div class="ft-zone-row ft-zone-aspect-row">
-          <div class="ft-zone-aspect-text">
+        <div class="ft-zone-overlay-row ft-zone-overlay-aspect-row">
+          <div class="ft-zone-overlay-aspect-text">
             ${aspect}
           </div>
-          <div class="ft-zones-invokes-container">
-            <span class="ft-zone-player-invoke-badge">
+          <div class="ft-zone-overlay-invokes-container">
+            <span class="ft-zone-overlay-player-invoke-badge">
               ${invokeData.invokes ?? 0}
             </span>
-            <span class="ft-zone-gm-invoke-badge">
+            <span class="ft-zone-overlay-gm-invoke-badge">
               ${invokeData.gm_invokes ?? 0}
             </span>
           </div>
@@ -173,8 +192,8 @@ export class ZoneCardRenderer {
     const invokeMap = canvas.scene.getFlag("fate-tools", "invokes") ?? {};
 
     let html = `
-      <div class="ft-zone-section">
-        <div class="ft-zone-section-header">
+      <div class="ft-zone-overlay-section">
+        <div class="ft-zone-overlay-section-header">
           Consequences
         </div>
     `;    
@@ -182,15 +201,15 @@ export class ZoneCardRenderer {
       const key = ["zone", this.zoneData.id, "consequence", consequence].join(":");
       const invokeData = invokeMap[key] ?? {"invokes": 0, "gm_invokes": 0}
       html += `
-        <div class="ft-zone-row ft-zone-consequence-row">
-          <div class="ft-zone-consequence-text">
+        <div class="ft-zone-overlay-row ft-zone-overlay-consequence-row">
+          <div class="ft-zone-overlay-consequence-text">
             ${consequence}
           </div>
-          <div class="ft-zones-invokes-container">
-            <span class="ft-zone-player-invoke-badge">
+          <div class="ft-zone-overlay-invokes-container">
+            <span class="ft-zone-overlay-player-invoke-badge">
               ${invokeData.invokes ?? 0}
             </span>
-            <span class="ft-zone-gm-invoke-badge">
+            <span class="ft-zone-overlay-gm-invoke-badge">
               ${invokeData.gm_invokes ?? 0}
             </span>
           </div>
@@ -202,7 +221,7 @@ export class ZoneCardRenderer {
   }
 
   _renderResizeHandle() {
-    return `<div class="ft-zone-resizer"></div>`
+    return `<div class="ft-zone-overlay-resizer"></div>`
   }
 
   async savePosition() {
@@ -222,6 +241,7 @@ export class ZoneCardRenderer {
     }
 
     await canvas.scene.setFlag("fate-tools", "zones", zones);
+    Hooks.callAll("fateToolsInvokesChanged");
   }
 
   _onModifyClick() {
@@ -236,11 +256,8 @@ export class ZoneCardRenderer {
     const dx = (event.clientX - this.lastX) / scale;
     const dy = (event.clientY - this.lastY) / scale;
 
-    this.element.style.left =
-      `${this.element.offsetLeft + dx}px`;
-
-    this.element.style.top =
-      `${this.element.offsetTop + dy}px`;
+    this.element.style.left = `${this.element.offsetLeft + dx}px`;
+    this.element.style.top = `${this.element.offsetTop + dy}px`;
 
     this.lastX = event.clientX;
     this.lastY = event.clientY;
@@ -280,14 +297,19 @@ export class ZoneCardRenderer {
   }
 
   attachDocumentListeners() {
-    const header = this.element.querySelector(".ft-zone-header");
-    const resizer = this.element.querySelector(".ft-zone-resizer");
+    const header = this.element.querySelector(".ft-zone-overlay-header");
+    const resizer = this.element.querySelector(".ft-zone-overlay-resizer");
 
-    this.element.querySelectorAll(".ft-zone-modify-button").forEach(box => {
-      box.addEventListener("click", this._onModifyClick.bind(this));
-    })
+    this.element.querySelectorAll(".ft-zone-overlay-modify-button").forEach(button => {
 
-    this.element.querySelectorAll(".ft-zone-stress-box").forEach(box => { 
+      button.addEventListener("pointerdown", event => {
+        event.stopPropagation();
+      });
+
+      button.addEventListener("click", this._onModifyClick.bind(this));
+    });
+
+    this.element.querySelectorAll(".ft-zone-overlay-stress-box").forEach(box => { 
       box.addEventListener("click", this._onStressClick.bind(this)); 
     });
 
@@ -322,7 +344,7 @@ export class ZoneCardRenderer {
     this.zoneData.stress ??= [];
     this.zoneData.stress[index] = !this.zoneData.stress[index];
     await this.saveZoneData();
-    this._refreshHTML();
+    this.refreshHTML();
   }
 
   async saveZoneData() {

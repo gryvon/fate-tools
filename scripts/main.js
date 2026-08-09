@@ -116,13 +116,13 @@ Hooks.on(
   }
 );
 
-Hooks.once("ready", () => {
+/*Hooks.once("ready", () => {
   canvas.stage.on("pointerdown", async event => {
     if (!game.user.isGM) return;
     if (game.fateZones.activeTool !== "createZone") return;
 
     const pos = event.data.getLocalPosition(canvas.stage);
-
+    console.log("Mousedown.")
     await game.fateZones.ZoneManager.createDefaultZone(
       pos.x,
       pos.y
@@ -130,9 +130,30 @@ Hooks.once("ready", () => {
 
     game.fateZones.activeTool = null;
   });
+});*/
+
+Hooks.on("canvasReady", () => {
+  canvas.stage.on("pointerdown", onCanvasPointerDown);
 });
 
+async function onCanvasPointerDown(event) {
+  if (!game.user.isGM) return;
+  if (game.fateZones.activeTool !== "createZone") return;
+
+  const pos = event.data.getLocalPosition(canvas.stage);
+
+  console.log("Mousedown.");
+
+  await game.fateZones.ZoneManager.createDefaultZone(
+    pos.x,
+    pos.y
+  );
+
+  game.fateZones.activeTool = null;
+}
+
 Hooks.on("updateScene", () => {
+  console.log("updateScene");
   ZoneManager.renderAll();
   ActiveAspects.refresh();
   game.fateZones.SceneAspectHUD.render();
@@ -181,194 +202,6 @@ export class FateToolsLayer extends foundry.canvas.layers.InteractionLayer {
 
 }
 
-Hooks.on("renderChatMessageHTML", (message, html) => {
-
-  if (!message.rolls?.length) return;
-
-  const content =
-    html.querySelector(".message-content");
-
-  if (!content) return;
-
-  // --------------------
-  // Invoke Button
-  // --------------------
-
-  const button =
-    document.createElement("button");
-
-  button.className =
-    "fate-tools-invoke";
-
-  button.textContent =
-    "Invoke";
-
-  button.addEventListener(
-    "click",
-    async () => {
-
-      game.fateTools.pendingInvoke = {
-
-        messageId: message.id,
-
-        actorId:
-          message.speaker.actor,
-
-        tokenId:
-          message.speaker.token
-
-      };
-
-      await game.fateTools
-        .ActiveAspects
-        .show();
-
-    }
-  );
-
-  content.appendChild(button);
-
-  // --------------------
-  // Invocation History
-  // --------------------
-
-  const invokes =
-    message.getFlag(
-      "fate-tools",
-      "invokes"
-    ) ?? [];
-
-  if (!invokes.length)
-    return;
-
-  const originalTotal =
-    message.rolls[0].total;
-
-  let adjustedTotal =
-    originalTotal;
-
-  // Use latest reroll as the base result
-
-  const reroll =
-    invokes
-      .filter(
-        i => i.effect === "reroll"
-      )
-      .at(-1);
-
-  if (reroll) {
-
-    adjustedTotal =
-      reroll.rerolled;
-
-  }
-
-  // Apply all +2 invokes
-
-  for (const invoke of invokes) {
-
-    if (invoke.effect === "+2") {
-
-      adjustedTotal += 2;
-
-    }
-
-  }
-
-  const invokeDiv =
-    document.createElement("div");
-
-  invokeDiv.className =
-    "fate-tools-invokes";
-
-  invokeDiv.innerHTML = `
-
-    <hr>
-
-    <h4>Invocations</h4>
-
-    ${invokes.map(i => {
-
-      if (i.effect === "reroll") {
-
-        return `
-
-          <div>
-
-            ${i.user}
-            invoked
-            <strong>${i.aspect}</strong>
-
-            (${i.payment}, reroll)
-
-            <strong>
-              ${i.original}
-              →
-              ${i.rerolled}
-            </strong>
-
-          </div>
-
-        `;
-
-      }
-
-      return `
-
-        <div>
-
-          ${i.user}
-          invoked
-          <strong>${i.aspect}</strong>
-
-          (${i.payment}, +2)
-
-        </div>
-
-      `;
-
-    }).join("")}
-
-    <hr>
-
-    <div>
-
-      Original Result:
-      <strong>${originalTotal}</strong>
-
-    </div>
-
-    <div>
-
-      Adjusted Total:
-      <strong>${adjustedTotal}</strong>
-
-    </div>
-
-  `;
-
-  content.appendChild(
-    invokeDiv
-  );
-
-});
-
-Hooks.on("updateActor", (actor) => {
-  game.fateTools.TokenOverlayManager.drawAll();
-})
-
-Hooks.on("updateToken", (document) => {
-  game.fateTools.TokenOverlayManager.drawAll();
-});
-
-Hooks.on("refreshToken", token => {
-  game.fateTools.TokenOverlayManager.drawAll();
-});
-
-Hooks.on("hoverToken", (token, hover) => {
-  game.fateTools.TokenOverlayManager.drawAll();
-});
-
 Hooks.on("createChatMessage", async (message) => {
   if (!message.rolls?.length) { return; }
 
@@ -379,67 +212,6 @@ Hooks.on("createChatMessage", async (message) => {
 });
 
 Hooks.on("renderChatMessageHTML", (message, html) => {
-
-  if (!message.rolls.length) return;
-
-  const rollData =
-    message.getFlag("fate-tools", "rollData");
-
-  if (!rollData) return;
-
-  const actor =
-    game.actors.get(rollData.actorId);
-
-  if (!actor) return;
-
-  const canObserve =
-    game.user.isGM ||
-    actor.testUserPermission(
-      game.user,
-      CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER
-    );
-
-  if (!canObserve) return;
-
-  // Rest of your code...
-});
-
-/*button.addEventListener("click", async event => {
-
-  const actorId =
-    event.currentTarget.dataset.actorId;
-
-  const actor =
-    game.actors.get(actorId);
-
-  const canObserve =
-    actor &&
-    (
-      game.user.isGM ||
-      actor.testUserPermission(
-        game.user,
-        CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER
-      )
-    );
-
-  if (!canObserve) {
-    ui.notifications.error(
-      "You do not have permission to view aspects for this actor."
-    );
-    return;
-  }
-
-  game.fateTools.pendingInvoke = {
-    messageId: event.currentTarget.dataset.messageId,
-    actorId,
-    tokenId: event.currentTarget.dataset.tokenId
-  };
-
-  await game.fateTools.ActiveAspects.show();
-});*/
-
-Hooks.on("renderChatMessageHTML", (message, html) => {
-  console.log(message);
   if (!message.rolls.length) { return; }
 
   const rollData = message.getFlag("fate-tools", "rollData");
@@ -455,7 +227,7 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
 
   content.innerHTML = newHTML;
 
-  const button = content.querySelector(".ft-roll-invoke-button");
+  const button = content.querySelector(".ft-roll-card-invoke-button");
 
   if (button) {
     button.addEventListener("click", async event => {
@@ -480,7 +252,7 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
     );
   }
 
-  const modifyButton = content.querySelector(".ft-roll-modify-button");
+  const modifyButton = content.querySelector(".ft-roll-card-modify-button");
   if (modifyButton) {
     modifyButton.addEventListener("click", async event => {
       const messageId = event.currentTarget.dataset.messageId;
@@ -493,6 +265,21 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
   }
 );
 
+Hooks.on("updateActor", (actor) => {
+  game.fateTools.TokenOverlayManager.drawAll();
+})
+
+Hooks.on("updateToken", (document) => {
+  game.fateTools.TokenOverlayManager.drawAll();
+});
+
+Hooks.on("refreshToken", token => {
+  game.fateTools.TokenOverlayManager.drawAll();
+});
+
+Hooks.on("hoverToken", (token, hover) => {
+  game.fateTools.TokenOverlayManager.drawAll();
+});
 
 Hooks.on("renderEditEntityTrack", (app, html) => {
 

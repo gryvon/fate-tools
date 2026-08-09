@@ -14,7 +14,6 @@ export class ZoneManager {
         renderer.destroy();
         this.renderers.delete(id);
       }
-
     }
 
     // Render or update existing zones
@@ -40,13 +39,18 @@ export class ZoneManager {
     this.renderers.clear();
   }
 
-  static async getZones(scene = canvas.scene) {
-
+  static async getZones(sceneId = game.user.viewedScene) {
+    const scene = game.scenes.get(sceneId);
+    console.log(scene);
     return scene.getFlag("fate-tools", "zones") ?? [];
   }
 
   static async saveZones(zones) {
-    return canvas.scene.setFlag("fate-tools", "zones", zones);
+    const sceneId = game.user.viewedScene;
+    console.log(sceneId);
+    const scene = game.scenes.get(sceneId);
+    console.log(scene);
+    return scene.setFlag("fate-tools", "zones", zones);
   }
 
   static async createZone(data) {
@@ -97,7 +101,7 @@ export class ZoneManager {
   }
 
   static async createDefaultZone(x = 100, y = 100) {
-
+    console.log("Fired")
     if (!game.user.isGM) {
       ui.notifications.warn("Only GMs may create Zones.");
       return;
@@ -131,6 +135,10 @@ export class ZoneManager {
       consequences: []
     };
 
+    const sceneId = game.user.viewedScene;
+    console.log(sceneId);
+    const scene = game.scenes.get(sceneId)
+    console.log(scene);
     const zones = await this.getZones();
 
     zones.push(zone);
@@ -143,138 +151,3 @@ export class ZoneManager {
   }
 
 }
-
-/*
-export class ZoneManager {
-
-  static async getZones(scene = canvas.scene) {
-
-    return scene.getFlag("fate-tools", "zones") ?? [];
-  }
-
-  static async saveZones(zones) {
-    return canvas.scene.setFlag("fate-tools", "zones", zones);
-  }
-
-  static async createZone(data) {
-
-    if (!game.user.isGM) { ui.notifications.warn("Only GMs may create Zones.");
-      return;
-    }
-
-    const zones = await this.getZones();
-
-    data.id = foundry.utils.randomID();
-
-    zones.push(data);
-
-    await this.saveZones(zones);
-
-    return data;
-  }
-
-  static async updateZone(id, updates) {
-
-    if (!game.user.isGM) {
-      ui.notifications.warn("Only GMs may modify Zones.");
-      return;
-    }
-
-    const zones = await this.getZones();
-
-    const zone = zones.find(z => z.id === id);
-
-    if (!zone) return;
-
-    foundry.utils.mergeObject(zone, updates);
-
-    await this.saveZones(zones);
-  }
-
-  static async deleteZone(id) {
-
-    if (!game.user.isGM) { 
-      ui.notifications.warn("Only GMs may delete Zones.");
-      return;
-    }
-
-    const zones = await this.getZones();
-
-    await this.saveZones(zones.filter(z => z.id !== id));
-  }
-
-  static async createDefaultZone(x = 100, y = 100) {
-
-    if (!game.user.isGM) {
-      ui.notifications.warn("Only GMs may create Zones.");
-      return;
-    }
-
-    const zone = {
-      id: foundry.utils.randomID(),
-
-      name: "New Zone",
-      color: "#FFFFFF",
-
-      x,
-      y,
-
-      width: 300,
-      height: 100,
-
-      enableStress: false,
-      stressBoxes: 3,
-
-      stress: [
-        false,
-        false,
-        false
-      ],
-
-      enableAspects: false,
-      aspects: [],
-
-      enableConsequences: false,
-      consequences: []
-    };
-
-    const zones = await this.getZones();
-
-    zones.push(zone);
-
-    await this.saveZones(zones);
-
-    await this.renderAll();
-
-    return zone;
-  }
-
-  static renderedZones = new Map();
-
-  static renderAll() {
-
-//    this.destroyAll();
-
-    const zones = canvas.scene.getFlag("fate-tools", "zones") ?? [];
-
-    for (const zone of zones) {
-
-      const renderer = new game.fateZones.ZoneCardRenderer(zone);
-
-      renderer.render();
-
-      this.renderedZones.set(zone.id, renderer);
-    }
-  }
-
-  static destroyAll() {
-
-    for (const renderer of this.renderedZones.values()) {
-      renderer.destroy();
-    }
-
-    this.renderedZones.clear();
-  }
-
-
-} */

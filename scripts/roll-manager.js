@@ -19,19 +19,19 @@ export class ModifyRollDialog extends foundry.applications.api.ApplicationV2
 
   async _renderHTML() {
     return `
-      <div class="ft-modify-roll-new">
+      <div class="ft-modify-roll">
         <label>
           Description:
         </label>
-        <input type="text" name="modify-roll-name">
+        <input type="text" name="ft-modify-roll-name">
       </div>
-      <div class="ft-modify-roll-new">
+      <div class="ft-modify-roll">
         <label>
           Modifier:
         </label>
-        <input type="number" value="0" name="modify-roll-value">
+        <input type="number" value="0" name="ft-modify-roll-value">
         <div class="ft-new-aspect-buttons">
-          <button type="button" class="ft-create-aspect">
+          <button type="button" class="ft-modify-create-button">
             Create
           </button>
         </div>
@@ -41,9 +41,9 @@ export class ModifyRollDialog extends foundry.applications.api.ApplicationV2
 
   async _replaceHTML(result, element) {
     element.innerHTML = result;
-    element.querySelector(".ft-create-aspect")?.addEventListener("click", async() => {
-      const desc = element.querySelector('[name="modify-roll-name"]')?.value?.trim();
-      const modifier = Number(element.querySelector('[name="modify-roll-value"]')?.value) || 0;
+    element.querySelector(".ft-modify-create-button")?.addEventListener("click", async() => {
+      const desc = element.querySelector('[name="ft-modify-roll-name"]')?.value?.trim();
+      const modifier = Number(element.querySelector('[name="ft-modify-roll-value"]')?.value) || 0;
       if (!desc) { return; }
       const msg = game.messages.get(this.messageId);
       const rollData = msg.getFlag("fate-tools", "rollData") ?? [];
@@ -138,8 +138,8 @@ export class RollManager {
   static _renderHeader(rollData) {
 
     return `
-      <div class="ft-roll-header">
-        <div class="ft-roll-skill-title">
+      <div class="ft-roll-card-header">
+        <div class="ft-roll-card-skill-title">
           ${rollData.skill}
         </div>
         ${this._renderModifyButton(rollData)}
@@ -152,7 +152,7 @@ export class RollManager {
   static _renderActor(rollData) {
 
     return `
-      <div class="ft-roll-actor">
+      <div class="ft-roll-card-actor">
 
         ${rollData.actorName}
 
@@ -164,7 +164,7 @@ export class RollManager {
   static _renderDice(rollData) {
 
     return `
-      <div class="ft-roll-row-dice">
+      <div class="ft-roll-card-row-dice">
           ${rollData.dice
             .map(d =>
               this._renderDie(d)
@@ -180,17 +180,17 @@ export class RollManager {
     switch (value) {
 
       case 1:
-        return `<span class="ft-die plus"></span>
+        return `<span class="ft-common-die-plus"></span>
         `;
 
       case -1:
         return `
-          <span class="ft-die minus"></span>
+          <span class="ft-common-die-minus"></span>
         `;
 
       default:
         return `
-          <span class="ft-die blank"></span>
+          <span class="ft-common-die-blank"></span>
         `;
 
     }
@@ -198,7 +198,7 @@ export class RollManager {
   static _renderModifiers(rollData) {
 
     let html = `
-      <div class="ft-roll-row">
+      <div class="ft-roll-card-row">
 
         <span>
           Skill
@@ -213,7 +213,7 @@ export class RollManager {
     `;
 
     html += rollData.modifiers.map(mod => `
-      <div class="ft-roll-row">
+      <div class="ft-roll-card-row">
 
         <span>
           ${mod.name}
@@ -239,7 +239,7 @@ export class RollManager {
 
     return invokes.map(invoke => `
 
-      <div class="ft-roll-row">
+      <div class="ft-roll-card-row">
 
         <span>
           ${invoke.aspect}
@@ -266,12 +266,12 @@ export class RollManager {
     const ladder = this._getLadder(total);
 
     return `
-      <div class="ft-roll-total">
-        <div class="ft-roll-total-value">
+      <div class="ft-roll-card-total">
+        <div class="ft-roll-card-total-value">
           ${total >= 0 ? "+" : ""}
           ${total}
         </div>
-        <div class="ft-roll-total-ladder">
+        <div class="ft-roll-card-total-ladder">
           (${ladder})
         </div>
       </div>
@@ -281,8 +281,8 @@ export class RollManager {
 
   static _renderModifyButton(rollData) {
     return `
-      <div class="ft-roll-modify">
-        <button class="ft-roll-modify-button" data-message-id="${rollData.messageId}">
+      <div class="ft-roll-card-modify">
+        <button class="ft-roll-card-modify-button" data-message-id="${rollData.messageId}">
           <i class="fa-solid fa-screwdriver-wrench"></i>
         </button>
       </div>
@@ -292,19 +292,12 @@ export class RollManager {
   static _renderInvokeButton(rollData) {
 
     return `
-
-      <div class="ft-roll-invoke">
-
-        <button class="ft-roll-invoke-button" title="Invoke an Aspect!" data-message-id="${rollData.messageId}" data-actor-id="${rollData.actorId}" data-token-id="${rollData.tokenId}">
-
+      <div class="ft-roll-card-invoke">
+        <button class="ft-roll-card-invoke-button" title="Invoke an Aspect!" data-message-id="${rollData.messageId}" data-actor-id="${rollData.actorId}" data-token-id="${rollData.tokenId}">
           <i class="fa-solid fa-bolt-lightning"></i>
-
           Invoke!
-
         </button>
-
       </div>
-
     `;
 
   }
@@ -321,16 +314,15 @@ static _renderRerolls(invokes) {
   }
 
   return `
-    <div class="ft-reroll-section">
-      <div class="ft-reroll-label">
+    <div class="ft-roll-card-reroll-section">
+      <div class="ft-roll-card-reroll-label">
         Rerolled
       </div>
-      <div class="ft-roll-row-dice">
+      <div class="ft-roll-card-row-dice">
         ${reroll.rerolledDice.map(d => this._renderDie(d)).join("")}
       </div>
     </div>
   `;
-
 }
 
   static _calculateTotal(rollData, invokes) {

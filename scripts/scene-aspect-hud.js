@@ -5,7 +5,7 @@ export class NewCountdownDialog extends foundry.applications.api.ApplicationV2
   }
 
   static DEFAULT_OPTIONS = {
-    id: "fate-tools-new-countdown-dialog",
+    id: "ft-new-countdown-dialog",
     tag: "section",
     window: {
       title: "New Countdown"
@@ -28,7 +28,7 @@ export class NewCountdownDialog extends foundry.applications.api.ApplicationV2
         </label>
         <input type="number" value="3" name="countdown-boxes">
         <div class="ft-new-countdown-buttons">
-          <button type="button" class="ft-create-countdown">
+          <button type="button" class="ft-new-countdown-create-countdown">
             Create
           </button>
         </div>
@@ -39,7 +39,7 @@ export class NewCountdownDialog extends foundry.applications.api.ApplicationV2
   async _replaceHTML(result, element) {
     element.innerHTML = result;
 
-    element.querySelector(".ft-create-countdown")?.addEventListener("click", async () => {
+    element.querySelector(".ft-new-countdown-create-countdown")?.addEventListener("click", async () => {
       const name = element.querySelector('[name="countdown-name"]')?.value?.trim();
       const boxes = Number(element.querySelector('[name="countdown-boxes"]')?.value);
 
@@ -64,7 +64,7 @@ export class NewAspectDialog extends foundry.applications.api.ApplicationV2
   }
 
   static DEFAULT_OPTIONS = {
-    id: "fate-tools-new-aspect-dialog",
+    id: "ft-new-aspect-dialog",
     tag: "section",
     window: {
       title: `New Aspect`
@@ -89,7 +89,7 @@ export class NewAspectDialog extends foundry.applications.api.ApplicationV2
         </label>
         <input type="text" name="aspect-name"/>
         <div class="ft-new-aspect-buttons">
-          <button type="button" class="ft-create-aspect">
+          <button type="button" class="ft-new-aspect-create-aspect">
             Create
           </button>
         </div>
@@ -102,7 +102,7 @@ export class NewAspectDialog extends foundry.applications.api.ApplicationV2
 
     element.innerHTML = result;
 
-    element.querySelector(".ft-create-aspect")?.addEventListener("click", async () => {
+    element.querySelector(".ft-new-aspect-create-aspect ")?.addEventListener("click", async () => {
       const name = element.querySelector('[name="aspect-name"]')?.value?.trim();
       if (!name) { return; }
       await SceneAspectHUD.create_new_aspect(this.aspectType, name);
@@ -126,7 +126,7 @@ export class SceneAspectHUD {
 
     const div = document.createElement("div");
 
-    div.id = "fate-tools-scene-hud";
+    div.id = "ft-scene-hud";
 
     div.innerHTML = `
       <div class="ft-scene-hud-content">
@@ -138,7 +138,7 @@ export class SceneAspectHUD {
       <div class="ft-scene-hud-resizer"></div>
     `;
 
-    div.querySelectorAll(".fate-tools-countdown-box").forEach(box => {
+    div.querySelectorAll(".ft-scene-hud-countdown-box").forEach(box => {
       box.addEventListener("click", async event => {
           const id = event.currentTarget.dataset.id;
           const index = Number(event.currentTarget.dataset.index);
@@ -160,16 +160,15 @@ export class SceneAspectHUD {
     this._makeResizable(div);
 
     if (game.user.isGM) {
-      const newGameAspectButton = document.querySelector("#fate-tools-new-game-aspect");
+      const newGameAspectButton = document.querySelector("#ft-new-game-aspect");
       newGameAspectButton?.addEventListener("click", async event => { this.newAspect("game"); });
-      const newSceneAspectButton = document.querySelector("#fate-tools-new-scene-aspect");
+      const newSceneAspectButton = document.querySelector("#ft-new-scene-aspect");
       newSceneAspectButton?.addEventListener("click", async event => { this.newAspect("scene"); });    
-      const newCountdownButton = div.querySelector("#fate-tools-new-countdown");
+      const newCountdownButton = div.querySelector("#ft-new-countdown");
       newCountdownButton?.addEventListener("click", () => this.newCountdown());
     }
     const players = document.querySelector("#players");
     const bottomOffset = players?players.offsetHeight + 10 : 10;
-    //div.style.bottom = `${bottomOffset}px`;
     div.style.position = "fixed";
     const pos = game.settings.get("fate-tools", "sceneHudPosition");
     const size = game.settings.get("fate-tools", "sceneHudSize");
@@ -198,7 +197,7 @@ export class SceneAspectHUD {
 
   static _renderNewAspectButton(type) {
     if (!game.user.isGM) { return ""; }
-    return `<button id="fate-tools-new-${type}-aspect" class="fate-tools-new-button">+ New</button>`
+    return `<button id="ft-new-${type}-aspect" class="ft-common-new-button">+ New</button>`
   }
 
   static _renderAspects(aspects) {
@@ -207,11 +206,11 @@ export class SceneAspectHUD {
         <span class="ft-aspect-title">
           ${a.name}
         </span>
-        <div class="ft-invoke-container">
-          <span class="ft-invoke-badge">
+        <div class="ft-common-invoke-container">
+          <span class="ft-common-player-invoke-badge">
             ${a.invokes}
           </span>
-          <span class="ft-gm-invoke-badge">
+          <span class="ft-common-gm-invoke-badge">
             ${a.gm_invokes ?? 0}
           </span>
         </div>
@@ -222,7 +221,7 @@ export class SceneAspectHUD {
 
   static _renderCountdownSection(countdowns) {
     return `
-      <div class="ft-hud-section">
+      <div class="ft-scene-hud-section">
         <div class="ft-scene-hud-header">
           Countdowns
           ${ this._renderNewCountdownButton() }
@@ -236,7 +235,7 @@ export class SceneAspectHUD {
     if (!game.user.isGM) return "";
 
     return `
-      <button id="fate-tools-new-countdown" class="fate-tools-new-button">
+      <button id="ft-new-countdown-button-new" class="ft-common-new-button">
         + New
       </button>
     `;
@@ -257,11 +256,11 @@ export class SceneAspectHUD {
     const boxes = Object.entries(countdowns).map(([id, cd]) => {
     const name = cd.name.replace(/<[^>]*>/g, "");
     const boxHtml =
-      `<div class="fate-tools-countdown-track">` +
+      `<div class="ft-scene-hud-countdown-track">` +
       cd.boxes
         .map((v, i) => `
           <div
-            class="fate-tools-countdown-box ${v ? "filled" : ""}"
+            class="ft-scene-hud-countdown-box ${v ? "filled" : ""}"
             data-id="${id}"
             data-index="${i}"
           ></div>
@@ -270,8 +269,8 @@ export class SceneAspectHUD {
       + `</div>`;
 
     return `
-      <div class="fate-tools-countdown-container">
-        <div class="fate-tools-countdown-title ft-aspect-row">${name}</div>
+      <div class="ft-scene-hud-countdown-container">
+        <div class="ft-scene-hud-countdown-title ft-aspect-row">${name}</div>
         <div >${boxHtml}</div>
       </div>
     `;

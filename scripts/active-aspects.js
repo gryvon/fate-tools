@@ -55,8 +55,8 @@ export class ActiveAspects {
   static async getContent() {
     const aspects = await game.fateTools.AspectManager.getSceneAspects();
     const groups = this._groupAspects(aspects);
-    let content = `<div class="ft-content">`;
-    content += `<div class="ft-card-container">`;
+    let content = `<div class="ft-active-aspects-content">`;
+    content += `<div class="ft-active-aspects-card-container">`;
     content += this._renderInvokeContext();
     content += this._renderGroups(groups);
     content += `</div></div>`;
@@ -112,35 +112,35 @@ export class ActiveAspects {
 
     return `
 
-      <div class="ft-invoke-card">
+      <div class="ft-active-aspects-invoke-card">
 
-        <div class="ft-invoke-header">
+        <div class="ft-active-aspects-invoke-header">
           ⚡ Invoke Context
         </div>
 
-        <div class="ft-invoke-body">
+        <div class="ft-active-aspects-invoke-body">
 
-          <div class="ft-invoke-label">
+          <div class="ft-active-aspects-invoke-label">
             Actor
           </div>
 
-          <div class="ft-invoke-value">
+          <div class="ft-active-aspects-invoke-value">
             ${msg.speaker.alias}
           </div>
 
-          <div class="ft-invoke-label">
+          <div class="ft-active-aspects-invoke-label">
             Roll
           </div>
 
-          <div class="ft-invoke-value">
+          <div class="ft-active-aspects-invoke-value">
             ${skill}
           </div>
 
-          <div class="ft-invoke-label">
+          <div class="ft-active-aspects-invoke-label">
             Current Roll
           </div>
 
-          <div class="ft-invoke-roll">
+          <div class="ft-active-aspects-invoke-roll">
             ${msg.rolls[0].total}
           </div>
 
@@ -166,14 +166,14 @@ export class ActiveAspects {
             (order[b.sourceType] ?? 999)
           );
         }).map(group => `
-          <div class="ft-card">
-            <div class="ft-card-header ${this._renderHeaderClass(group)}" style="${this._renderHeaderStyle(group)}">
-              <span class="ft-activeaspects-group-title">
+          <div class="ft-active-aspects-card">
+            <div class="ft-active-aspects-card-header ${this._renderHeaderClass(group)}" style="${this._renderHeaderStyle(group)}">
+              <span class="ft-active-aspects-group-title">
                 ${group.sourceName}
               </span>
               ${this._renderNewAspectButton(group)}
             </div>
-            <div class="ft-card-body">
+            <div class="ft-active-aspects-card-body">
               ${group.aspects.map(a => this._renderAspect(a)).join("")}
             </div>
           </div>
@@ -184,7 +184,7 @@ export class ActiveAspects {
     if (!game.user.isGM) { return ""; }
     return `
       <span>
-        <button id="ft-activeaspects-new-${group.sourceType}-aspect" data-source="${group.sourceType}" data-target="${group.sourceId}" class="fate-tools-new-button ft-activeaspects-new-button">+ New</button>
+        <button data-source="${group.sourceType}" data-target="${group.sourceId}" class="ft-general-new-button ft-active-aspects-new-button">+ New</button>
       </span>
     `
   }
@@ -230,17 +230,17 @@ export class ActiveAspects {
       return this._renderConsequence(aspect, invokeButton);
     }
     return `
-      <div class="ft-aspect-row">
-        <div class="ft-aspect-info">
-          <div class="ft-aspect-type">
+      <div class="ft-active-aspects-aspect-row">
+        <div class="ft-active-aspects-aspect-info">
+          <div class="ft-active-aspects-aspect-type">
             Aspect
           </div>
-          <div class="ft-aspect-name">
+          <div class="ft-active-aspects-aspect-name">
             ${aspect.name}
           </div>
         </div>
-        <div class="ft-aspect-controls-row">
-          <div class="ft-aspect-controls">
+        <div class="ft-active-aspects-aspect-controls-row">
+          <div class="ft-active-aspects-aspect-controls">
             ${this._renderInvokeControls(aspect)}
           </div>
           ${invokeButton}
@@ -254,7 +254,7 @@ export class ActiveAspects {
     if (!game.user.isGM) { return ""; }
     const key = game.fateTools.AspectManager.getAspectKey(aspect);
     return `
-      <a title="Delete this aspect" class="ft-activeaspects-delete-button" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}">
+      <a title="Delete this aspect" class="ft-active-aspects-delete-button" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}">
         <i class="fa-solid fa-trash"></i>
       </a>
     `
@@ -269,17 +269,17 @@ export class ActiveAspects {
       );
 
     return `
-      <div class="ft-aspect-row">
-        <div class="ft-aspect-info">
-          <div class="ft-aspect-type">
+      <div class="ft-active-aspects-aspect-row">
+        <div class="ft-active-aspects-aspect-info">
+          <div class="ft-active-aspects-aspect-type">
             ${aspect.severity}
           </div>
-          <div class="ft-aspect-name">
+          <div class="ft-active-aspects-aspect-name">
             ${aspect.name}
           </div>
         </div>
-        <div class="ft-aspect-controls-row">
-          <div class="ft-aspect-controls">
+        <div class="ft-active-aspects-aspect-controls-row">
+          <div class="ft-active-aspects-aspect-controls">
             ${this._renderInvokeControls(aspect)}
           </div>
         ${invokeButton}
@@ -290,40 +290,40 @@ export class ActiveAspects {
 
   static _renderInvokeControls(aspect) {
     return `
-      <div class="ft-invoke-stack">
+      <div class="ft-active-aspects-invoke-stack">
 
         ${game.user.isGM ? `
-          <button class="invoke-control-button" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}" data-action="plus" data-type="player">
+          <button class="ft-active-aspects-invoke-control-button" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}" data-action="plus" data-type="player">
             +
           </button>
         ` : ""}
 
-        <span title="Player Free Invokes" class="ft-invoke-badge">
+        <span title="Player Free Invokes" class="ft-general-player-invoke-badge">
           ${aspect.invokes ?? 0}
         </span>
 
         ${game.user.isGM ? `
-          <button class="invoke-control-button" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}" data-action="minus" data-type="player">
+          <button class="ft-active-aspects-invoke-control-button" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}" data-action="minus" data-type="player">
             -
           </button>
         ` : ""}
 
       </div>
 
-      <div class="ft-invoke-stack">
+      <div class="ft-active-aspects-invoke-stack">
 
         ${game.user.isGM ? `
-          <button class="invoke-control-button" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}" data-action="plus" data-type="gm">
+          <button class="ft-active-aspects-invoke-control-button" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}" data-action="plus" data-type="gm">
             +
           </button>
         ` : ""}
 
-        <span title="GM Free Invokes" class="ft-gm-invoke-badge">
+        <span title="GM Free Invokes" class="ft-general-gm-invoke-badge">
           ${aspect.gm_invokes ?? 0}
         </span>
 
         ${game.user.isGM ? `
-          <button class="invoke-control-button" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}" data-action="minus" data-type="gm">
+          <button class="ft-active-aspects-invoke-control-button" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}" data-action="minus" data-type="gm">
             -
           </button>
         ` : ""}
@@ -338,7 +338,7 @@ export class ActiveAspects {
     }
 
     return `
-      <a title="Invoke Aspect!" class="invoke-aspect" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}">
+      <a title="Invoke Aspect!" class="ft-active-aspects-invoke-aspect" data-key="${game.fateTools.AspectManager.getAspectKey(aspect)}">
         <i class="fa-solid fa-bolt-lightning"></i>
       </a>
     `;
@@ -347,7 +347,7 @@ export class ActiveAspects {
 
   static _attachHandlers(element) {
 
-    element.querySelectorAll(".ft-activeaspects-delete-button").forEach(el => {
+    element.querySelectorAll(".ft-active-aspects-delete-button").forEach(el => {
       el.addEventListener("click", async event => {
       const key = event.currentTarget.dataset.key;
       const aspect = await game.fateTools.AspectManager.getAspectByKey(key);
@@ -356,7 +356,7 @@ export class ActiveAspects {
       });
     });
 
-    element.querySelectorAll(".ft-activeaspects-new-button").forEach(el => {
+    element.querySelectorAll(".ft-active-aspects-new-button").forEach(el => {
       el.addEventListener("click", async event => {
       const sourceType = event.currentTarget.dataset.source;
       const sourceId = event.currentTarget.dataset.target;
@@ -365,7 +365,7 @@ export class ActiveAspects {
       });
     });
 
-    element.querySelectorAll(".invoke-control-button").forEach(el => {
+    element.querySelectorAll(".ft-active-aspects-invoke-control-button").forEach(el => {
       el.addEventListener("click", async event => {
         const key = event.currentTarget.dataset.key;
         const action = event.currentTarget.dataset.action;
@@ -392,7 +392,7 @@ export class ActiveAspects {
       })
     })
 
-    element.querySelectorAll(".invoke-aspect")
+    element.querySelectorAll(".ft-active-aspects-invoke-aspect")
       .forEach(el => {
 
         el.addEventListener(

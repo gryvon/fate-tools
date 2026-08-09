@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.8.11
+
+### Fixed
+ - Fixed issue with Fate Zones not propogating as expected after scene switches.
+ - Fixed issue with modify button sometimes not working after zone overlay being moved.
+
 ## v0.8.10
 
 ### Improvements
